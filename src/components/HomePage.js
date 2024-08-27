@@ -183,14 +183,16 @@ const HomePage = () => {
            alignItems: 'center',
            justifyContent: 'center',
          position: 'relative',
-         borderTopRightRadius: '5%',
          margin:'0',
+         borderTopRightRadius: '5%',
+         
           borderBottomRightRadius: '5%',
-          backgroundImage: `url(${background} )`,
-          backgroundSize:'cover',
+       
          }}
        >
-         <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '70%', height: 'auto' }} />
+                <img src={background} alt="Background" style={{ width: '100%', height: '100vh' }} />
+
+         <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
        </Box>
 
       <Box

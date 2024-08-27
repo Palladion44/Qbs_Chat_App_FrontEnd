@@ -9,6 +9,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { register, setPhoneNumber, setStep } from '../features/auth/authSlice';
 import background from '../assets/background.jpg';
 import centeredImage from '../assets/image_login.png';
+import '@fontsource/poppins/700.css'; // Import the Poppins font
+import '@fontsource/poppins/600.css'; // Import the Poppins font
+import { country_codes_and_flags } from './helpers/countrydata';
+import Select from "react-select";
+import ReactCountryFlag from "react-country-flag";
+
 
 const Register = () => {
   const [phone_number, setPhone] = useState('');
@@ -70,14 +76,13 @@ const Register = () => {
     >
       <Box
         sx={{
-          width: '50%',
+          width: '43%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
           borderTopRightRadius: '5%',
           borderBottomRightRadius: '5%',
-          overflow: 'hidden',
         }}
       >
         <img src={background} alt="Background" style={{ width: '100%', height: '100vh' }} />
@@ -85,7 +90,7 @@ const Register = () => {
       </Box>
       <Box
         sx={{
-          width: '50%',
+          width: '57%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -96,13 +101,13 @@ const Register = () => {
           },
         }}
       >
-        <Typography variant="h4" sx={{ mb: 2, fontFamily: 'poppins', fontWeight: 'bold', fontSize: '2.0rem' }}>
+        <Typography variant="h4" sx={{ mb: 4, fontFamily: 'poppins', fontWeight: 'bold', fontSize: '2.0rem' }}>
           Register Now
         </Typography>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontFamily: 'poppins', fontSize: '1.6rem', fontWeight: 'medium' }}>
+        <Typography variant="subtitle1" sx={{fontFamily: 'poppins', fontSize: '1.6rem', fontWeight: 'medium' }}>
           Enter Your Phone Number
         </Typography>
-        <Typography variant="body2" sx={{ mb: 2, textAlign: 'center', fontFamily: 'poppins', fontSize: '1.3rem', width: '43ch' }}>
+        <Typography variant="body" sx={{ mb: 5, textAlign: 'center', fontFamily: 'poppins', fontSize: '1rem'  }}>
           Please confirm your country code and enter your phone number
         </Typography>
         <Box sx={{ mr: 30 }}>

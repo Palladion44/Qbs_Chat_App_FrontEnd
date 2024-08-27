@@ -421,11 +421,14 @@ const authSlice = createSlice({
       })
       .addCase(ReceiveMessages.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.messages = action.payload;
         // Extract sender IDs from the messages and store them
         const sender_ids = action.payload.map((message) => message.sender);
         state.sender_ids = [...new Set(sender_ids)]; // Store unique sender IDs
         localStorage.setItem("sender_ids", state.sender_ids);
+        localStorage.setItem("revmsg", JSON.stringify(state.messages));
+        state.messages = JSON.stringify(action.payload);
+
+
         console.log("sender_ids" + state.sender_ids);
       })
       .addCase(ReceiveMessages.rejected, (state, action) => {

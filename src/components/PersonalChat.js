@@ -22,12 +22,15 @@ import {
 } from "../features/auth/authSlice";
 const PersonalChat = ({ conversationId, name }) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([])
+
   const dispatch = useDispatch();
   const user_id = localStorage.getItem("user_id"); // Get current user's ID from localStorage
   const conversation_id = conversationId; // Get conversation ID from localStorage
   const token = localStorage.getItem("token"); // Assuming you have a token for authentication
   const socketRef = useRef();
+  const allUsers = useSelector((state) => state.auth.allUsers) || [];
+
   console.log(conversationId)
 
     useEffect(() => {
@@ -48,6 +51,7 @@ const PersonalChat = ({ conversationId, name }) => {
 
       socketRef.current.on("receiveMessage", (newMessage) => {
         console.log("newMessage data: ", newMessage);
+        console.log(allUsers)
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
 

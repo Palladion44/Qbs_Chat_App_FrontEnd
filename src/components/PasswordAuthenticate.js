@@ -122,7 +122,7 @@ const PasswordAuthenticate = () => {
               variant="h4"
               sx={{ mb: 2, fontFamily: "Poppins", fontWeight: "bold" }}
             >
-              Register Now
+              Login Now
             </Typography>
             <Box
               sx={{
