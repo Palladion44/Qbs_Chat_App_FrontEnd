@@ -20,7 +20,8 @@ import {
   setConversationId,
 
 } from "../features/auth/authSlice";
-const PersonalChat = ({ conversationId, name }) => {
+import MessageWithReadMore from "./MessageWithReadMore";
+const PersonalChat = ({ conversationId, name,profileimage }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([])
 
@@ -146,7 +147,7 @@ const PersonalChat = ({ conversationId, name }) => {
             borderBottom: "1px solid #eee",
           }}
         >
-          <Avatar src={userAvatar} />
+          <Avatar src={profileimage} />
           <Typography variant="h6" sx={{ marginLeft: 2 }}>
             {name}
           </Typography>
@@ -176,17 +177,26 @@ const PersonalChat = ({ conversationId, name }) => {
                     borderRadius: "8px",
                     maxWidth: "70%",
                     boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.2)",
+                    wordWrap: "break-word", // Wrap long words to the next line
+                    whiteSpace: "pre-wrap", // Preserves whitespace and wraps text when necessary
+                    overflowWrap: "break-word", // Breaks long words to prevent overflow
                   }}
                 >
-                  {msg.message}
-                </Typography>
-                <Typography
+                 <MessageWithReadMore
+                  message={msg.message}
+                  sender={msg.sender}
+                  userId={user_id}
+                />
+                  <Typography
                   variant="body2"
+
                   color="textSecondary"
-                  sx={{ alignSelf: "flex-end", marginLeft: "8px" }}
+                  sx={{ alignSelf: "flex-end",textAlign:"end",fontSize:"10px" }}
                 >
                   {new Date(msg.timestamp).toLocaleString()}
                 </Typography>
+                </Typography>
+                
               </Box>
             ))}
              <div ref={messagesEndRef} />

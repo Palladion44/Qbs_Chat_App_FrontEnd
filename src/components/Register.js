@@ -39,7 +39,6 @@ const Register = () => {
         if (action.payload) {
           alert("i am here")
           dispatch(setPhoneNumber(phone_number)); // Save phone number in redux store
-          dispatch(setStep('profile')); 
           console.log(step);
           navigate('/Profile'); 
         } else {
@@ -56,11 +55,11 @@ const Register = () => {
     }
   };
 
-  useEffect(() => {
-    if ( registrationMessage) {
-      navigate('/Profile');
-    }
-  }, [status, registrationMessage, navigate]);
+  // useEffect(() => {
+  //   if ( registrationMessage) {
+  //     navigate('/Profile');
+  //   }
+  // }, [status, registrationMessage, navigate]);
 
   return (
     <Container

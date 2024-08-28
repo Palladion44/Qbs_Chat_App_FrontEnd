@@ -38,7 +38,10 @@
   } from "../features/auth/authSlice";
   import PersonalChat from "./PersonalChat";
   import io from "socket.io-client"; // Import Socket.io
-
+  import '@fontsource/poppins/700.css'; // Import the Poppins font
+  import '@fontsource/poppins/600.css'; // Import the Poppins font
+  import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
   // import { GetAllChats,ReceiveMessages } from '../features/auth/actions';
   // import { setConversationId } from '../features/auth/reducers';
 
@@ -52,7 +55,7 @@
     const allUsers = useSelector((state) => state.auth.allUsers) || [];
     // const allUsers = JSON.parse(useSelector((state) => state.allUsers)) || [];
     // const allUsers = JSON.parse(localStorage.getItem('AllUsers')) || [];
-
+const user = useSelector((state) => state.auth.user)
     const users = useSelector((state) => state.auth.users);
     const status = useSelector((state) => state.auth.status);
     const error = useSelector((state) => state.auth.error);
@@ -72,7 +75,7 @@
 
 
 
-
+    console.log(allUsers);
     
     useEffect(() => {
 
@@ -135,7 +138,17 @@
         });
       }
     }, [ dispatch, token]);
-    
+
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+          dispatch(GetAllChats({ token }));
+      }, 1000); // Dispatches every 1000ms (1 second)
+
+      // Cleanup the interval on component unmount
+      return () => clearInterval(interval);
+  }, [dispatch, token]); // Dependencies include dispatch and token
+
 
     const handleChange = (event) => {
       setSearchQuery(event.target.value);
@@ -179,7 +192,37 @@
       console.log(allUsers)
     }, [messages])
 
-
+    const formatTimestamp = (timestamp) => {
+      const date = new Date(timestamp);
+      const now = new Date();
+    
+      // Normalize dates to local midnight for comparisons
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(today.getDate() - 7);
+    
+      // Check if the date is today
+      if (date >= today) {
+          return 'Today';
+      } else if (date >= yesterday) {
+          return 'Yesterday';
+      } else if (date >= oneWeekAgo) {
+          // Return the day of the week in local time
+          return date.toLocaleDateString(undefined, { weekday: 'long' }); // e.g., "Friday"
+      } else {
+          // Return the full date in local time
+          return date.toLocaleDateString(); // e.g., "8/23/2024" or "August 23, 2024" based on locale
+      }
+  };
+  const filteredUsers = searchQuery
+  ? allUsers?.filter((user) =>
+      user.participants?.some(participant =>
+        participant.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    )
+  : allUsers; 
     return (
       <Container
         disableGutters
@@ -211,7 +254,7 @@
             }}
           >
             <img
-              src={userAvatar}
+              src={ user.user.profile_url || userAvatar}
               alt="my_image"
               style={{ width: "50px", height: "50px" }}
               onClick={handleUser}
@@ -231,27 +274,17 @@
           {/* Search Bar */}
           <Box sx={{ padding: 2, borderBottom: "1px solid #eee" }}>
             <FormControl fullWidth>
-              <InputLabel
-                htmlFor="search-bar"
-                sx={{
-                  position: "absolute",
-                  left: "14%",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  pointerEvents: "none",
-                }}
-              >
-                Search
-              </InputLabel>
+              
               <TextField
                 size="small"
+                placeholder="Search"
                 variant="outlined"
                 value={searchQuery}
-                onChange={handleChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon />
+                      <SearchIcon sx={{color:"#ADB5BD"}} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -271,8 +304,8 @@
           {/* Chat List */}
           <Box sx={{ overflowY: "auto" }} >
             {
-            
-                allUsers.map((user, index) => (
+            Array.isArray(filteredUsers) && filteredUsers.length > 0 && (
+  filteredUsers.map((user, index) => (
                   <Box
                     key={user._id}
                     sx={{
@@ -288,28 +321,66 @@
                     }}
                     onClick={() => handleChatClick(user)}
                   >
-                    <Avatar src={user.profile_url} />
-                    <Box sx={{ marginLeft: 2 }}>
-                      <Typography variant="subtitle1">
-                        {user.participants[0]?.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {user.lastMessage?.message || "No message yet"}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {new Date(user.lastMessage?.timestamp).toLocaleString() ||
-                          "No timestamp"}
-                      </Typography>
-                    </Box>
+                    <Avatar src={user.participants[0]?.profile_url} />
+                    <Box sx={{ marginLeft: 2,width:"85%" }}>
                     <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ marginLeft: "auto" }}
-                    >
-                      Today
-                    </Typography>
+  variant="subtitle1"
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    width: "100%", // Default max-width
+    "@media (max-width: 1200px)": {
+      maxWidth: "80%", // Reduce the visible text on medium screens
+    },
+    "@media (max-width: 800px)": {
+      maxWidth: "60%", // Further reduce the visible text on smaller screens
+    },
+    "@media (max-width: 600px)": {
+      maxWidth: "40%", // Significantly reduce the visible text on very small screens
+    },
+  }}
+>
+  <span style={{fontFamily:"Poppins",fontWeight:"500"}}>{user.participants[0]?.name}</span>
+  <Typography
+    variant="body2"
+    component="span"
+    sx={{
+      fontSize: "0.8rem", // Smaller font size for the date
+      whiteSpace: "nowrap", // Prevent date from wrapping
+      marginLeft: "8px", // Add some space between name and date
+    }}
+  >
+      {user.lastMessage?.timestamp ? formatTimestamp(user.lastMessage.timestamp) : ''}
+
+  </Typography>
+</Typography>
+                      <Typography variant="body2" sx={{
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    maxWidth: "100%", // Default max-width
+    "@media (max-width: 1200px)": {
+      maxWidth: "80%", // Reduce the visible text on medium screens
+    },
+    "@media (max-width: 800px)": {
+      maxWidth: "60%", // Further reduce the visible text on smaller screens
+    },
+    "@media (max-width: 600px)": {
+      maxWidth: "40%", // Significantly reduce the visible text on very small screens
+    },
+  }} color="textSecondary">
+                       {user.lastMessage?.message || "No message yet"}
+
+                      </Typography>
+                      
+                    </Box>
+                    
                   </Box>
-                ))}
+                )))}
           </Box>
         </Box>
 
@@ -319,6 +390,7 @@
           <PersonalChat
             conversationId={selectedChat._id}
             name={selectedChat.participants[0]?.name}
+            profileimage={selectedChat.participants[0]?.profile_url}
           />
           
         ):

@@ -348,7 +348,7 @@ function UnauthRouth() {
         <Route path="/" element={<HomePage />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/Login" element={<Login />} />
-        <Route path="/ProfileAccount" element={<ProfileAccount />} />
+        <Route path="/Profile" element={<ProfileAccount />} />
         <Route path="/RoleSelect" element={<RoleSelect />} />
         <Route path="/PasswordAuthenticate" element={<PasswordAuthenticate />} />
 

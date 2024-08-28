@@ -213,23 +213,27 @@ export const register = createAsyncThunk(
 
 export const userDetails = createAsyncThunk(
   "auth/userDetails",
-  async (
-    { phone_number, first_name, last_name, password, department, role, image },
-    { rejectWithValue }
-  ) => {
+  async ({ formData, navigate }, { rejectWithValue }) => {
+    // const {phone_number, first_name, last_name, password, department, role, image} = formDataObj
+    // console.log(formDataObj)
     try {
       const response = await axios.post(
         "http://localhost:4000/api/auth/register",
+        formData,
         {
-          phone_number,
-          first_name,
-          last_name,
-          password,
-          department,
-          role,
-          image,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          // phone_number,
+          // first_name,
+          // last_name,
+          // password,
+          // department,
+          // role,
+          // image,
         }
       );
+      navigate('/Login')
 
       return response.data;
     } catch (error) {
@@ -242,7 +246,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-   
     addToChatList: (state, action) => {
       if (!state.chatList.some((user) => user.name === action.payload.name)) {
         state.chatList.push(action.payload);
@@ -309,7 +312,6 @@ const authSlice = createSlice({
         state.status = "loading";
       })
       .addCase(login.fulfilled, (state, action) => {
-
         state.loading = false;
         state.user = action.payload.user; // assuming the response has a user object
         // Optionally save authentication state or token to localStorage
@@ -351,7 +353,7 @@ const authSlice = createSlice({
       })
       .addCase(userDetails.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.registrationMessage = action.payload.message;
+        // state.registrationMessage = action.payload.message;
       })
       .addCase(userDetails.rejected, (state, action) => {
         state.status = "failed";
@@ -361,11 +363,10 @@ const authSlice = createSlice({
         state.status = "loading";
       })
       .addCase(passwordcheck.fulfilled, (state, action) => {
-
         state.status = "succeeded";
         state.token = action.payload.token;
         state.user_id = action.payload.user._id;
-
+        state.user = action.payload;
         state.registrationMessage = action.payload.message;
         localStorage.setItem("token", action.payload.token);
         localStorage.setItem("user_id", action.payload.user._id);
@@ -392,7 +393,7 @@ const authSlice = createSlice({
       .addCase(SendReceiverId.pending, (state) => {
         state.status = "loading";
       })
-     
+
       .addCase(SendReceiverId.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.conversation_id = action.payload._id; // Save the conversation _id in state
@@ -427,7 +428,6 @@ const authSlice = createSlice({
         localStorage.setItem("sender_ids", state.sender_ids);
         localStorage.setItem("revmsg", JSON.stringify(state.messages));
         state.messages = JSON.stringify(action.payload);
-
 
         console.log("sender_ids" + state.sender_ids);
       })

@@ -4,7 +4,7 @@ import Avatar from '../assets/Avatar.png';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import background from '../assets/background.jpg';
 import centeredImage from '../assets/image_login.png'; 
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 
 import { userDetails } from '../features/auth/authSlice'; // Import register
@@ -14,7 +14,11 @@ const RoleSelect = () => {
   const navigate = useNavigate();
   const [department, setDepartment] = useState('');
   const [role, setRole] = useState('');
+  const [imagex, setUploadedImgx] = useState(null);
   const [image, setUploadedImg] = useState(null);
+
+  const [previewUrl, setPreviewUrl] = useState(null);
+
   const [snackbarMessage, setSnackbarMessage] = useState(''); 
   const [openSnackbar, setOpenSnackbar] = useState(false); 
   const dispatch = useDispatch();
@@ -25,25 +29,48 @@ const RoleSelect = () => {
   const last_name = useSelector((state) => state.auth.last_name); // Get lastName from state
   const password = useSelector((state) => state.auth.password); // Get password from state
 
+  const formDataObj = {phone_number , first_name , last_name , password , department , role, image}
+  console.log(formDataObj)
 
-  const handleContinue = () => {
-    try {
-      const action = dispatch(userDetails({ phone_number, first_name, last_name, password, department, role,image }));
-      if (userDetails.fulfilled.match(action)) {
-        if (action.payload) {
-          navigate('/Login');
-        } else {
-          setSnackbarMessage(action.payload.message || 'User not registered successfully');
-          setOpenSnackbar(true);
-        }
-      } else {
-        setSnackbarMessage(error.message || 'An error occurred');
-        setOpenSnackbar(true);
-      }
-    } catch (err) {
-      setSnackbarMessage('An unexpected error occurred');
-      setOpenSnackbar(true);
-    }
+  const formData = new FormData();
+  formData.append("phone_number", phone_number);
+  formData.append("first_name", first_name);
+  formData.append("last_name", last_name);
+  formData.append("password", password);
+  formData.append("department", department);
+  formData.append("role", role);
+  formData.append("image", image);
+
+//   // console.log("Form data: " + {...formData})
+//   const formDataObj = {};
+
+// formData.forEach((value, key) => {
+//   formDataObj[key] = value;
+// });
+
+// console.log(formDataObj);
+  const handleContinue = (e) => {
+    e.preventDefault();
+
+
+    const action = dispatch(userDetails({formData  , navigate}));
+
+    // try {
+    //   if (userDetails.fulfilled.match(action)) {
+    //     if (action.payload) {
+    //       navigate('/Login');
+    //     } else {
+    //       setSnackbarMessage(action.payload.message || 'User not registered successfully');
+    //       setOpenSnackbar(true);
+    //     }
+    //   } else {
+    //     setSnackbarMessage(error.message || 'An error occurred');
+    //     setOpenSnackbar(true);
+    //   }
+    // } catch (err) {
+    //   setSnackbarMessage('An unexpected error occurred');
+    //   setOpenSnackbar(true);
+    // }
   };
 
 
@@ -66,12 +93,18 @@ const RoleSelect = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // const reader = new FileReader();
-      // reader.onload = (e) => {
-      //   setUploadedImg(e.target.result);
-      // };
-      // reader.readAsDataURL(file);
+
+      setUploadedImgx(file)
+      // setUploadedImg(file.name)
       setUploadedImg(file)
+     
+
+      // Generate a URL for the image to be used in the img tag
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result); // This sets the image URL to previewUrl
+      };
+      reader.readAsDataURL(file); // Convert the file to a data URL
     }
   };
 
@@ -124,13 +157,16 @@ const RoleSelect = () => {
             <Typography variant='h4' sx={{ mb: 2, fontFamily: 'Poppins', fontWeight: 'bold' }}>Register Now</Typography>
 
             <Box sx={{ position: 'relative', display: 'inline-block', marginBottom: 2 }}>
+
+              {previewUrl&&(
               <img
-                src={image || Avatar}
+                src={URL.createObjectURL(imagex)}
                 alt='User Avatar'
                 style={{ width: '150px', height: '150px', borderRadius: '50%' }}
               />
+            )}
               <input
-                accept="image/*"
+                 accept=".png, .jpg, .jpeg"
                 style={{ display: 'none' }}
                 id="icon-button-file"
                 type="file"
