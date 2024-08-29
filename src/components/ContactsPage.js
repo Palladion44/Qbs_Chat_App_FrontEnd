@@ -20,6 +20,7 @@ import { Add, Search, ChatBubbleOutline, MoreVert } from "@mui/icons-material";
 import { GetUsers, SendReceiverId } from "../features/auth/authSlice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 
 const ContactsPage = ({ onClose }) => {
   const dispatch = useDispatch();
@@ -79,27 +80,24 @@ const ContactsPage = ({ onClose }) => {
       <ListItemText primary={contact.name} secondary={contact.status} />
     </ListItem>
   );
-
   return (
-    <Container>
-      <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar>
-          <IconButton onClick={onClose}>
-            <ArrowBackIcon sx={{ marginRight: 4 }} />
-          </IconButton>
-          <Typography variant="h6" style={{ flexGrow: 1, marginLeft: 15 }}>
-            Contacts
-          </Typography>
-          <IconButton color="primary">
-            <Add />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <TextField
+    <Container disableGutters>
+      <AppBar position="static" disableGutters sx={{ boxShadow: "none" }}>
+  <Toolbar sx={{ backgroundColor: "#0BC827" }}>
+    <IconButton onClick={onClose}>
+      <ArrowBackIosIcon sx={{ color: "white" }} />
+    </IconButton>
+    <Typography variant="h6" sx={{ fontFamily: "Poppins", flexGrow: 1 }}>
+      New Chat
+    </Typography>
+  </Toolbar>
+</AppBar>
+      <TextField 
+
         variant="outlined"
         placeholder="Search"
         fullWidth
-        margin="normal"
+        margin="dense"
         value={searchQuery} // Bind input value to searchQuery state
         onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery on input change
         InputProps={{

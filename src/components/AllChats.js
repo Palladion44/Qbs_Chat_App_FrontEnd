@@ -76,6 +76,7 @@ const user = useSelector((state) => state.auth.user)
 
 
     console.log(allUsers);
+console.log(users)
     
     useEffect(() => {
 
