@@ -61,7 +61,7 @@ const user = useSelector((state) => state.auth.user)
     const error = useSelector((state) => state.auth.error);
     const conversation_id = useSelector((state) => state.auth.error);
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useSelector((state) => state?.auth?.messages)
+    const [messages, setMessages] = useState({})
     const [showClearIcon, setShowClearIcon] = useState("none");
     const [searchQuery, setSearchQuery] = useState("");
     const [isProfileOpen, setIsProfileOpen] = useState(false);
