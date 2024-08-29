@@ -214,6 +214,9 @@ const PersonalChat = ({ conversationId, name,profileimage }) => {
             variant="outlined"
             size="small"
             fullWidth
+            multiline
+            maxRows={8}
+            
             placeholder="Type a message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}

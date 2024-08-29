@@ -279,7 +279,7 @@ console.log(users)
               <TextField
                 size="small"
                 placeholder="Search"
-                variant="outlined"
+                variant="filled"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{

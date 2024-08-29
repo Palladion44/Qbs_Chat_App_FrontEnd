@@ -117,11 +117,7 @@ const ContactsPage = ({ onClose }) => {
           ))}
         </List>
       )}
-      <BottomNavigation showLabels>
-        <BottomNavigationAction label="Contacts" icon={<ChatBubbleOutline />} />
-        <BottomNavigationAction label="Search" icon={<Search />} />
-        <BottomNavigationAction label="More" icon={<MoreVert />} />
-      </BottomNavigation>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
