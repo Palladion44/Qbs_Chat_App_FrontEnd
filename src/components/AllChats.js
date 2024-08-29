@@ -61,7 +61,7 @@ const user = useSelector((state) => state.auth.user)
     const error = useSelector((state) => state.auth.error);
     const conversation_id = useSelector((state) => state.auth.error);
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useSelector((state) => state.auth.messages)
+    const [messages, setMessages] = useSelector((state) => state?.auth?.messages)
     const [showClearIcon, setShowClearIcon] = useState("none");
     const [searchQuery, setSearchQuery] = useState("");
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -255,7 +255,7 @@ console.log(users)
             }}
           >
             <img
-              src={ user.user.profile_url || userAvatar}
+              src={ user?.user?.profile_url || userAvatar}
               alt="my_image"
               style={{ width: "50px", height: "50px" }}
               onClick={handleUser}
@@ -273,115 +273,137 @@ console.log(users)
           </Box>
 
           {/* Search Bar */}
-          <Box sx={{ padding: 2, borderBottom: "1px solid #eee" }}>
-            <FormControl fullWidth>
-              
-              <TextField
-                size="small"
-                placeholder="Search"
-                variant="filled"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{color:"#ADB5BD"}} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment
-                      position="end"
-                      style={{ display: showClearIcon }}
-                      onClick={handleClick}
-                    >
-                      <ClearIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </FormControl>
-          </Box>
+          <Box sx={{ padding: 2 }}>
+  <FormControl fullWidth>
+    <TextField
+    sx={{paddingTop:0}}
+      size="small"
+      placeholder="Search"
+      variant="filled"
+      fullWidth
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      InputProps={{
+        disableUnderline: true, // Removes the underline
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon sx={{ color: "#ADB5BD" }} />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment
+            position="end"
+            style={{ display: showClearIcon }}
+            onClick={handleClick}
+          >
+            <ClearIcon />
+          </InputAdornment>
+        ),
+      }}
+      // sx={{
+      //   '.MuiFilledInput-root': {
+      //     paddingTop:0, // Adjust padding for the icon and text
+      //     paddingBottom: 0,
+      //     backgroundColor: 'transparent', // Ensure the background is transparent
+      //   },
+      //   '.MuiFilledInput-input': {
+      //     paddingTop:5, // Adjust padding for the icon and text
+
+      //     paddingBottom: 0,
+      //   },
+      // }}
+    />
+  </FormControl>
+</Box>
+
 
           {/* Chat List */}
           <Box sx={{ overflowY: "auto" }} >
-            {
-            Array.isArray(filteredUsers) && filteredUsers.length > 0 && (
-  filteredUsers.map((user, index) => (
-                  <Box
-                    key={user._id}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: 2,
-                      borderBottom: "1px solid #eee",
-                      backgroundColor: selectedChat && selectedChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
-                      cursor: "pointer",
-                      "&:hover": {
-                        backgroundColor: "#f9f9f9",
-                      },
-                    }}
-                    onClick={() => handleChatClick(user)}
-                  >
-                    <Avatar src={user.participants[0]?.profile_url} />
-                    <Box sx={{ marginLeft: 2,width:"85%" }}>
-                    <Typography
-  variant="subtitle1"
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    width: "100%", // Default max-width
-    "@media (max-width: 1200px)": {
-      maxWidth: "80%", // Reduce the visible text on medium screens
-    },
-    "@media (max-width: 800px)": {
-      maxWidth: "60%", // Further reduce the visible text on smaller screens
-    },
-    "@media (max-width: 600px)": {
-      maxWidth: "40%", // Significantly reduce the visible text on very small screens
-    },
-  }}
->
-  <span style={{fontFamily:"Poppins",fontWeight:"500"}}>{user.participants[0]?.name}</span>
-  <Typography
-    variant="body2"
-    component="span"
-    sx={{
-      fontSize: "0.8rem", // Smaller font size for the date
-      whiteSpace: "nowrap", // Prevent date from wrapping
-      marginLeft: "8px", // Add some space between name and date
-    }}
-  >
-      {user.lastMessage?.timestamp ? formatTimestamp(user.lastMessage.timestamp) : ''}
+          {
+  Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+    filteredUsers.map((user, index) => (
+      <Box
+        key={user._id}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          padding: 2,
+          borderBottom: "1px solid #eee",
+          backgroundColor: selectedChat && selectedChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
+          cursor: "pointer",
+          "&:hover": {
+            backgroundColor: "#f9f9f9",
+          },
+        }}
+        onClick={() => handleChatClick(user)}
+      >
+        <Avatar src={user.participants[0]?.profile_url} />
+        <Box sx={{ marginLeft: 2, width: "85%" }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              width: "100%", // Default max-width
+              "@media (max-width: 1200px)": {
+                maxWidth: "80%", // Reduce the visible text on medium screens
+              },
+              "@media (max-width: 800px)": {
+                maxWidth: "60%", // Further reduce the visible text on smaller screens
+              },
+              "@media (max-width: 600px)": {
+                maxWidth: "40%", // Significantly reduce the visible text on very small screens
+              },
+            }}
+          >
+            <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
+              {user.participants[0]?.name}
+            </span>
+            <Typography
+              variant="body2"
+              component="span"
+              sx={{
+                fontSize: "0.8rem", // Smaller font size for the date
+                whiteSpace: "nowrap", // Prevent date from wrapping
+                marginLeft: "8px", // Add some space between name and date
+              }}
+            >
+              {user.lastMessage?.timestamp
+                ? formatTimestamp(user.lastMessage.timestamp)
+                : ""}
+            </Typography>
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              maxWidth: "100%", // Default max-width
+              "@media (max-width: 1200px)": {
+                maxWidth: "80%", // Reduce the visible text on medium screens
+              },
+              "@media (max-width: 800px)": {
+                maxWidth: "60%", // Further reduce the visible text on smaller screens
+              },
+              "@media (max-width: 600px)": {
+                maxWidth: "40%", // Significantly reduce the visible text on very small screens
+              },
+            }}
+            color="textSecondary"
+          >
+            {user.lastMessage?.message || "No message yet"}
+          </Typography>
+        </Box>
+      </Box>
+    ))
+  ) : null
+}
 
-  </Typography>
-</Typography>
-                      <Typography variant="body2" sx={{
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    maxWidth: "100%", // Default max-width
-    "@media (max-width: 1200px)": {
-      maxWidth: "80%", // Reduce the visible text on medium screens
-    },
-    "@media (max-width: 800px)": {
-      maxWidth: "60%", // Further reduce the visible text on smaller screens
-    },
-    "@media (max-width: 600px)": {
-      maxWidth: "40%", // Significantly reduce the visible text on very small screens
-    },
-  }} color="textSecondary">
-                       {user.lastMessage?.message || "No message yet"}
-
-                      </Typography>
-                      
-                    </Box>
-                    
-                  </Box>
-                )))}
           </Box>
         </Box>
 
