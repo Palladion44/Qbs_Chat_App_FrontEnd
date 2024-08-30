@@ -26,7 +26,7 @@ const initialState = {
   name: null,
   isAuthenticated: false,
 };
-
+const baseUrl = process.env.BASE_URL
 export const ReceiveMessages = createAsyncThunk(
   "auth/ReceiveMessages",
   async (_, { getState, rejectWithValue }) => {
@@ -157,8 +157,9 @@ export const GetUsers = createAsyncThunk(
   "auth/GetUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:4000/api/users");
-      return response.data;
+      const response = await axios.get("http://192.168.81.0:4000/api/users");
+      console.log("IM CHEKING HERE",response.data)
+      return response.data ;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }

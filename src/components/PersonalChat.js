@@ -21,10 +21,12 @@ import {
 
 } from "../features/auth/authSlice";
 import MessageWithReadMore from "./MessageWithReadMore";
+const myIp = process.env.MY_IP
 const PersonalChat = ({ conversationId, name,profileimage }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([])
 
+  const baseUrl = process.env.REAC_APP_BASE_URL
   const dispatch = useDispatch();
   const user_id = localStorage.getItem("user_id"); // Get current user's ID from localStorage
   const conversation_id = conversationId; // Get conversation ID from localStorage
@@ -35,7 +37,8 @@ const PersonalChat = ({ conversationId, name,profileimage }) => {
   console.log(conversationId)
 
     useEffect(() => {
-      socketRef.current = io("http://localhost:4000", {
+      socketRef.current = io(`${baseUrl}`, {
+      // socketRef.current = io(`http://localhost:4000`, {
         auth: { token },
       });
 
@@ -80,7 +83,9 @@ const PersonalChat = ({ conversationId, name,profileimage }) => {
 
 
   const onKeyDown = (event) => {
-    if(event.key === 'Enter'){
+    if(event.key === 'Enter'&& !event.shiftKey){
+      event.preventDefault(); // Prevent the newline from being added
+
       handleSendMessage();
     }
   }

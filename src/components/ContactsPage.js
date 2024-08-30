@@ -21,11 +21,14 @@ import { GetUsers, SendReceiverId } from "../features/auth/authSlice";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-
+import PersonalChat from "./PersonalChat";
 const ContactsPage = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    dispatch(GetUsers());
+  }, []);
   const users = useSelector((state) => state.auth.users);
   const status = useSelector((state) => state.auth.status);
   const error = useSelector((state) => state.auth.error);
@@ -35,9 +38,6 @@ const ContactsPage = ({ onClose }) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // Add search query state
 
-  useEffect(() => {
-    dispatch(GetUsers());
-  }, [dispatch]);
 
   const handleChatClick = async (contact) => {
     try {
@@ -49,7 +49,6 @@ const ContactsPage = ({ onClose }) => {
       );
       if (SendReceiverId.fulfilled.match(action)) {
         if (action.payload) {
-          window.location.reload();
           onClose(); 
         } else {
           setSnackbarMessage(
@@ -68,8 +67,8 @@ const ContactsPage = ({ onClose }) => {
   };
 
   // Filter users based on the search query
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users?.filter((user) =>
+    user?.name?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
 
   const ContactItem = ({ contact }) => (
@@ -81,6 +80,9 @@ const ContactsPage = ({ onClose }) => {
     </ListItem>
   );
   return (
+      <>
+    <PersonalChat/>
+
     <Container disableGutters>
       <AppBar position="static" disableGutters sx={{ boxShadow: "none" }}>
   <Toolbar sx={{ backgroundColor: "#0BC827" }}>
@@ -117,6 +119,7 @@ const ContactsPage = ({ onClose }) => {
           ))}
         </List>
       )}
+     
 
       <Snackbar
         open={openSnackbar}
@@ -125,6 +128,7 @@ const ContactsPage = ({ onClose }) => {
         message={snackbarMessage}
       />
     </Container>
+</>
   );
 };
 

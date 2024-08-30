@@ -84,7 +84,8 @@ const Register = () => {
           borderBottomRightRadius: '5%',
         }}
       >
-        <img src={background} alt="Background" style={{ width: '100%', height: '100vh' }} />
+        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
+          borderBottomRightRadius: '24px' }} />
         <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
       </Box>
       <Box
@@ -120,19 +121,21 @@ const Register = () => {
         </Box>
         <Button
           variant="contained"
+          lowerCase
           sx={{
             mt: 2,
             backgroundColor: '#1F487C',
             width: '19%',
             borderRadius: '50px',
             height: '9%',
+            fontFamily:"Poppins",
             '&:hover': {
               backgroundColor: '#1F487C',
             },
           }}
           onClick={handleContinue}
         >
-          Continue
+          test
         </Button>
         <Snackbar
           open={openSnackbar}

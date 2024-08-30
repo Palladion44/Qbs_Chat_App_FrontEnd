@@ -49,16 +49,15 @@ const Login = () => {
 
   return (
     <Container
-      disableGutters
-      maxWidth={false}
-            sx={{
-        display: 'flex',     
-        height: '100vh',
-        backgroundColor: '#ffff',
-      
-        margin:0,
-        padding:0,
-      }}
+    disableGutters
+    maxWidth={false}
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+     
+    }}
     >
       <Box
         sx={{
@@ -67,16 +66,14 @@ const Login = () => {
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          borderTopRightRadius: '5%',
-          margin: '0',
-          borderBottomRightRadius: '5%',
-          backgroundImage: `url(${background})`, // Use the imported image
-          backgroundSize: 'cover',
+          borderTopRightRadius: '50%',
+          borderBottomRightRadius: '50%',
         }}
-         
-       >
-         <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '70%', height: 'auto' }} />
-       </Box>
+      >
+        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
+          borderBottomRightRadius: '24px', }} />
+        <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
+      </Box>
 
       <Box
         sx={{
@@ -85,38 +82,27 @@ const Login = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px',
-          textAlign: 'center',
-          backgroundColor: '#ffff',
-        
+          padding: 4,
+          '@media (max-width: 425px)': {
+            width: '100%',
+          },
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "poppins",
-            fontWeight: "bold",
-            fontSize: "2.0rem",
-          }}
-        >
+        <Typography variant="h4" sx={{ mb: 4, fontFamily: 'poppins', fontWeight: 'bold', fontSize: '2.0rem' }}>
           Login
         </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontFamily: "poppins",
-            fontSize: "1.6rem",
-            fontWeight: "medium",
-          }}
-        >
-          Enter Your Phone Number and Password
+        <Typography variant="subtitle1" sx={{fontFamily: 'poppins', fontSize: '1.6rem', fontWeight: 'medium' }}>
+          Enter Your Phone Number
         </Typography>
-        <Box width={"100%"} >
+        <Typography variant="body" sx={{ mb: 5, textAlign: 'center', fontFamily: 'poppins', fontSize: '1rem'  }}>
+          Please confirm your country code and enter your phone number
+        </Typography>
+        <Box sx={{mr:30}} >
           <PhoneInput
             country={"pk"}
             value={phone_number}
             onChange={handlePhoneChange}
-            inputStyle={{ width: "84%" }}
+            inputStyle={{ width: "200%" }}
           />
         </Box>
         <Button

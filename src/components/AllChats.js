@@ -44,18 +44,20 @@
 import '@fontsource/poppins/500.css';
   // import { GetAllChats,ReceiveMessages } from '../features/auth/actions';
   // import { setConversationId } from '../features/auth/reducers';
-
   const AllChats = () => {
-
-    const dispatch = useDispatch();
-    const socketRef = useRef();
-
-    const token = useSelector((state) => state.auth.token);
-    // const allUsers = localStorage.getItem('AllUsers');
-    const allUsers = useSelector((state) => state.auth.allUsers) || [];
-    // const allUsers = JSON.parse(useSelector((state) => state.allUsers)) || [];
-    // const allUsers = JSON.parse(localStorage.getItem('AllUsers')) || [];
-const user = useSelector((state) => state.auth.user)
+    
+    const myIP = process.env.MY_IP;
+    const baseUrl=process.env.REACT_APP_BASE_URL;
+    console.log(baseUrl)
+  const dispatch = useDispatch();
+  const socketRef = useRef();
+  
+  const token = useSelector((state) => state.auth.token);
+  // const allUsers = localStorage.getItem('AllUsers');
+  const allUsers = useSelector((state) => state.auth.allUsers) || [];
+  // const allUsers = JSON.parse(useSelector((state) => state.allUsers)) || [];
+  // const allUsers = JSON.parse(localStorage.getItem('AllUsers')) || [];
+  const user = useSelector((state) => state.auth.user)
     const users = useSelector((state) => state.auth.users);
     const status = useSelector((state) => state.auth.status);
     const error = useSelector((state) => state.auth.error);
@@ -74,6 +76,7 @@ const user = useSelector((state) => state.auth.user)
     const localtoken = localStorage.getItem("token");
 
 
+    console.log(myIP)
 
     console.log(allUsers);
 console.log(users)
@@ -92,7 +95,8 @@ console.log(users)
       };
     
 
-      socketRef.current = io("http://localhost:4000", {
+      socketRef.current = io(`${baseUrl}`, {
+      // socketRef.current = io(`http://localhost:4000`, {
         auth: { token },
       });
 
@@ -224,6 +228,12 @@ console.log(users)
       )
     )
   : allUsers; 
+
+  const handleClear = () => {
+    setSearchQuery(''); // Clear the input field
+  };
+
+
     return (
       <Container
         disableGutters
@@ -274,49 +284,46 @@ console.log(users)
 
           {/* Search Bar */}
           <Box sx={{ padding: 2 }}>
-  <FormControl fullWidth>
-    <TextField
-    sx={{paddingTop:0}}
-      size="small"
-      placeholder="Search"
-      variant="filled"
-      fullWidth
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      InputProps={{
-        disableUnderline: true, // Removes the underline
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon sx={{ color: "#ADB5BD" }} />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment
-            position="end"
-            style={{ display: showClearIcon }}
-            onClick={handleClick}
-          >
-            <ClearIcon />
-          </InputAdornment>
-        ),
-      }}
-      // sx={{
-      //   '.MuiFilledInput-root': {
-      //     paddingTop:0, // Adjust padding for the icon and text
-      //     paddingBottom: 0,
-      //     backgroundColor: 'transparent', // Ensure the background is transparent
-      //   },
-      //   '.MuiFilledInput-input': {
-      //     paddingTop:5, // Adjust padding for the icon and text
-
-      //     paddingBottom: 0,
-      //   },
-      // }}
-    />
-  </FormControl>
-</Box>
-
-
+      <FormControl fullWidth>
+      <TextField 
+  size="small"
+  placeholder="Search"
+  variant="filled"
+  fullWidth
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  InputProps={{
+    disableUnderline: true, // Removes the underline
+    startAdornment: (
+      <InputAdornment position="start" sx={{ padding: 0 }}>
+        <SearchIcon sx={{ color: "#ADB5BD", marginBottom: 2 }} />
+      </InputAdornment>
+    ),
+    endAdornment: (
+      <InputAdornment position="end" sx={{ padding: 0 }}>
+        {searchQuery && (
+          <IconButton onClick={handleClear} edge="end">
+            <ClearIcon sx={{ color: "#ADB5BD" }} />
+          </IconButton>
+        )}
+      </InputAdornment>
+    ),
+  }}
+  sx={{
+    '.MuiFilledInput-root': {
+      paddingTop: 1, // Adjust padding above the input
+      paddingBottom: 1,
+      backgroundColor: "#F7F7FC",
+      borderRadius: '10px', // Add borderRadius to round the corners
+    },
+    '.MuiFilledInput-input': {
+      paddingTop: 0, // Adjust padding above the placeholder
+      paddingBottom: 0,
+    },
+  }}
+/>
+      </FormControl>
+    </Box>
           {/* Chat List */}
           <Box sx={{ overflowY: "auto" }} >
           {
