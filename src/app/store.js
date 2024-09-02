@@ -6,7 +6,8 @@ import authReducer from "../features/auth/authSlice";
 // Redux Persist configuration
 const persistConfig = {
   key: "root", // key for localStorage
-  storage, // storage method (localStorage in this case)
+  storage,
+  blacklist:['selectedContact'] // storage method (localStorage in this case)
 };
 
 // Wrap your authReducer with persistReducer

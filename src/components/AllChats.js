@@ -35,6 +35,7 @@
     GetAllChats,
     setConversationId,
     ReceiveMessages,
+    setSelectedContact
   } from "../features/auth/authSlice";
   import PersonalChat from "./PersonalChat";
   import io from "socket.io-client"; // Import Socket.io
@@ -62,6 +63,7 @@ import '@fontsource/poppins/500.css';
     const status = useSelector((state) => state.auth.status);
     const error = useSelector((state) => state.auth.error);
     const conversation_id = useSelector((state) => state.auth.error);
+    const selectedContact = useSelector((state) => state.auth.selectedContact);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState({})
     const [showClearIcon, setShowClearIcon] = useState("none");
@@ -74,14 +76,23 @@ import '@fontsource/poppins/500.css';
     const [forceRender, setForceRender] = useState(0);
     const username = localStorage.getItem("username");
     const localtoken = localStorage.getItem("token");
+    const [singlecontactData,setSingleContactData] = useState();
 
 
-    console.log(myIP)
+//     console.log(myIP)
+    // console.log(selectedContact)
+// console.log(users)
+const filterSelected1 = allUsers?.filter((user) =>
+  user.participants.some((participant) => participant._id === selectedContact?._id)
+);
+let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filterSelected1;
 
-    console.log(allUsers);
-console.log(users)
-// console.log(user)
-    
+
+// if(filterSelected){
+//   setSingleContactData(filterSelected)
+// console.log(singlecontactData)
+// }
+
     useEffect(() => {
 
 
@@ -166,10 +177,11 @@ console.log(users)
       setShowClearIcon("none");
     };
     
-    const [selectedChat, setSelectedChat] = useState(null);
+    const [selectedChat, setSelectedChat] = useState();
     
     const handleChatClick = (user) => {
-      setSelectedChat(user);
+      setSelectedChat(user)
+      console.log(user)
       setIsContactsOpen(false);
     };
     
@@ -232,7 +244,49 @@ console.log(users)
 
   const handleClear = () => {
     setSearchQuery(''); // Clear the input field
+
+
   };
+  const [currentChat, setCurrentChat] = useState();
+
+  useEffect(() => {
+    // Toggle logic for currentChat
+    if (filterSelected) {
+      setCurrentChat(filterSelected);
+      console.log(filterSelected)
+    } else if (selectedChat) {
+      console.log(selectedChat)
+      setCurrentChat(selectedChat);
+   
+    }
+  }, [selectedChat, filterSelected]);
+
+
+  // useEffect(() => {
+  //   // Toggle logic for currentChat
+  //   if (filterSelected) {
+  //     console.log(filterSelected)
+  //     setCurrentChat(filterSelected);
+  //   }
+  // }, [filterSelected]);
+  // useEffect(() => {
+  //   // Toggle logic for currentChat
+  //   if (selectedChat) {
+  //     setCurrentChat(selectedChat);
+  //   }
+  // }, [selectedChat]);
+
+
+
+
+
+//   useEffect(()=>{
+
+// if(selectedChat !== null) {
+
+//   setCurrentChat(filterSelected);
+// }
+//   },[]);
 
 
     return (
@@ -415,15 +469,13 @@ console.log(users)
         </Box>
 
         {/* Main Content Area */}
-        
-        {selectedChat ? (
-          <PersonalChat
-            conversationId={selectedChat._id}
-            name={selectedChat.participants[0]?.name}
-            profileimage={selectedChat.participants[0]?.profile_url}
-          />
-          
-        ):
+        {currentChat ? (
+        <PersonalChat
+          conversationId={currentChat._id}
+          name={currentChat.participants[0]?.name}
+          profileimage={currentChat.participants[0]?.profile_url}
+        />
+      ) :
         <Box
           sx={{
             width: "70%",
@@ -464,7 +516,7 @@ console.log(users)
           ModalProps={{ keepMounted: true }}
           sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
         >
-                {isContactsOpen && <ContactsPage onClose={handleCloseContacts} />}
+                {isContactsOpen && <ContactsPage  onClose={handleCloseContacts} />}
 
         </Drawer>
         

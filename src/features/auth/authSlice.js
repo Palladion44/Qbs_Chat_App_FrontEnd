@@ -25,6 +25,7 @@ const initialState = {
   sender_ids: [],
   name: null,
   isAuthenticated: false,
+  setSelectedContact:null
 };
 const baseUrl = process.env.BASE_URL
 export const ReceiveMessages = createAsyncThunk(
@@ -267,6 +268,9 @@ const authSlice = createSlice({
     setPhoneNumber(state, action) {
       state.phone_number = action.payload;
     },
+    setSelectedContact(state, action) {
+      state.selectedContact = action.payload;
+    },
     // SetparticipantId(state, action) {
     //   state.participantId = action.payload;
     //   console.log("The participant id is" + state.participantId)
@@ -447,6 +451,7 @@ export const {
   addToChatList,
   setConversationId,
   SetUserId,
+  setSelectedContact
 } = authSlice.actions;
 
 export default authSlice.reducer;

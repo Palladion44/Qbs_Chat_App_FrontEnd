@@ -65,50 +65,34 @@ const ProfileAccount = () => {
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
-        height: "100vh",
       }}
     >
       <Box
         sx={{
-          display: "flex",
-          width: "120%",
-          boxShadow: 3,
+          width: '43%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          borderTopRightRadius: '5%',
+          borderBottomRightRadius: '5%',
         }}
       >
-        <Box
-          sx={{
-            width: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            borderTopRightRadius: "5%",
-            borderBottomRightRadius: "5%",
-            overflow: "hidden",
-          }}
-        >
-          <img
-            src={background}
-            alt="Background"
-            style={{ width: "100%", height: "100vh" }}
-          />
-          <img
-            src={centeredImage}
-            alt="Centered"
-            style={{ position: "absolute", width: "60%", height: "auto" }}
-          />
-        </Box>
+        
+        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
+          borderBottomRightRadius: '24px' }} />
+        <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
 
         <Box
           sx={{
-            width: "50%",
+            width: "57%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             padding: 4,
           }}
         >
-          <Box sx={{ textAlign: "center" }}>
+          
             <Typography
               variant="h4"
               sx={{ mb: 2, fontFamily: "Poppins", fontWeight: "bold" }}
@@ -116,7 +100,7 @@ const ProfileAccount = () => {
               Register Now
             </Typography>
 
-            <Box sx={{ position: "relative", display: "inline-block" }}>
+            
               <img
                 src={Avatar}
                 alt="User Avatar"
@@ -132,8 +116,8 @@ const ProfileAccount = () => {
                   cursor: "pointer",
                 }}
               />
-            </Box>
-            <Box disableGutters sx={{ width: "100%" }}>
+          
+            
               <TextField
                 label="First Name (Required)"
                 variant="outlined"
@@ -244,8 +228,7 @@ const ProfileAccount = () => {
               </Button>
             </Box>
           </Box>
-        </Box>
-      </Box>
+      
     </Container>
   );
 };

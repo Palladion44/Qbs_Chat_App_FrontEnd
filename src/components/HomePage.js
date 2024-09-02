@@ -183,15 +183,14 @@ const HomePage = () => {
            alignItems: 'center',
            justifyContent: 'center',
          position: 'relative',
-         margin:'0',
          borderTopRightRadius: '5%',
          
           borderBottomRightRadius: '5%',
        
          }}
        >
-                <img src={background} alt="Background" style={{ width: '100%', height: '100vh' }} />
-
+        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
+        borderBottomRightRadius: '24px' }} />
          <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
        </Box>
 
@@ -202,7 +201,10 @@ const HomePage = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px',
+          padding: 4,
+          '@media (max-width: 425px)': {
+            width: '100%',
+          },
           textAlign: 'center',
           backgroundColor: '#ffff',
         }}

@@ -13,17 +13,16 @@ import {
   ListItemText,
   Avatar,
   Container,
-  BottomNavigation,
-  BottomNavigationAction,
+
 } from "@mui/material";
-import { Add, Search, ChatBubbleOutline, MoreVert } from "@mui/icons-material";
-import { GetUsers, SendReceiverId } from "../features/auth/authSlice";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {Search} from "@mui/icons-material";
+import { GetUsers, SendReceiverId,setSelectedContact } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import PersonalChat from "./PersonalChat";
-const ContactsPage = ({ onClose,contact }) => {
+
+const ContactsPage = ({ onClose,contact}) => {
   const dispatch = useDispatch();
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,14 +32,18 @@ const ContactsPage = ({ onClose,contact }) => {
   const status = useSelector((state) => state.auth.status);
   const error = useSelector((state) => state.auth.error);
   const token = useSelector((state) => state.auth.token);
+  const selectedContact = useSelector((state) => state.auth.selectedContact);
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // Add search query state
-
+ const [selectedContactsUser ,SetselectedContactsUser] = useState();
 
   const handleChatClick = async (contact) => {
     try {
+      SetselectedContactsUser(contact)
+      console.log(selectedContactsUser)
+      dispatch(setSelectedContact(contact));
       localStorage.setItem("participantId", contact._id);
       const participantId = localStorage.getItem("participantId");
 
@@ -49,7 +52,7 @@ const ContactsPage = ({ onClose,contact }) => {
       );
       if (SendReceiverId.fulfilled.match(action)) {
         if (action.payload) {
-          onClose(); 
+          onClose()
         } else {
           setSnackbarMessage(
             action.payload?.message || "Phone number is not available"
@@ -65,6 +68,12 @@ const ContactsPage = ({ onClose,contact }) => {
       setOpenSnackbar(true);
     }
   };
+  useEffect(() => {
+    if (selectedContactsUser) {
+      console.log("Updated selectedContactsUser:", selectedContactsUser);
+    }
+  }, [selectedContactsUser]);
+
 
   // Filter users based on the search query
   const filteredUsers = users?.filter((user) =>

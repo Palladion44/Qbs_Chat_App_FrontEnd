@@ -119,23 +119,26 @@ const Register = () => {
             inputStyle={{ width: '200%' }}
           />
         </Box>
-        <Button
+        <Button 
           variant="contained"
           lowerCase
           sx={{
             mt: 2,
+        boxShadow:'none',
             backgroundColor: '#1F487C',
             width: '19%',
             borderRadius: '50px',
             height: '9%',
             fontFamily:"Poppins",
+            textTransform: 'capitalize', // Add this line to make text lowercase
+
             '&:hover': {
               backgroundColor: '#1F487C',
             },
           }}
           onClick={handleContinue}
         >
-          test
+          Continue
         </Button>
         <Snackbar
           open={openSnackbar}
