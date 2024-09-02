@@ -157,7 +157,7 @@ export const GetUsers = createAsyncThunk(
   "auth/GetUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://192.168.81.0:4000/api/users");
+      const response = await axios.get("http://localhost:4000/api/users");
       console.log("IM CHEKING HERE",response.data)
       return response.data ;
     } catch (error) {

@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import {logout} from  "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
-const UserProfile = ({ onClose }) => {
+const UserProfile = ({ onClose ,profile}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const UserProfile = ({ onClose }) => {
 
       <Box sx={{ mt: 8, mb: 2, ml: 12 }}>
         <Avatar
-          src={userAvatar} // Replace with your image URL
+          src={profile} // Replace with your image URL
           alt="Profile Picture"
           sx={{ width: 170, height: 170 }}
         />

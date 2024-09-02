@@ -80,6 +80,7 @@ import '@fontsource/poppins/500.css';
 
     console.log(allUsers);
 console.log(users)
+// console.log(user)
     
     useEffect(() => {
 
@@ -264,12 +265,11 @@ console.log(users)
               borderBottom: "1px solid #eee",
             }}
           >
-            <img
-              src={ user?.user?.profile_url || userAvatar}
-              alt="my_image"
-              style={{ width: "50px", height: "50px" }}
-              onClick={handleUser}
-            />
+            <Avatar
+             src={user?.user?.profile_url}
+             alt="my-image"
+              onClick={handleUser}/>
+            
             <Typography sx={{ marginLeft: "100px" }}>
               {console.log("The username is" + username)}
             </Typography>
@@ -453,7 +453,7 @@ console.log(users)
           ModalProps={{ keepMounted: true }}
           sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
         >
-          <UserProfile onClose={handleProfileClose} />
+          <UserProfile profile={user?.user?.profile_url} onClose={handleProfileClose} />
         </Drawer>
 
         {/* Contacts Drawer */}

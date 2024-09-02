@@ -22,7 +22,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import PersonalChat from "./PersonalChat";
-const ContactsPage = ({ onClose }) => {
+const ContactsPage = ({ onClose,contact }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -81,7 +81,6 @@ const ContactsPage = ({ onClose }) => {
   );
   return (
       <>
-    <PersonalChat/>
 
     <Container disableGutters>
       <AppBar position="static" disableGutters sx={{ boxShadow: "none" }}>

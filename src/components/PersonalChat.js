@@ -26,7 +26,7 @@ const PersonalChat = ({ conversationId, name,profileimage }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([])
 
-  const baseUrl = process.env.REAC_APP_BASE_URL
+  const baseUrl = process.env.REACT_APP_BASE_URL
   const dispatch = useDispatch();
   const user_id = localStorage.getItem("user_id"); // Get current user's ID from localStorage
   const conversation_id = conversationId; // Get conversation ID from localStorage
