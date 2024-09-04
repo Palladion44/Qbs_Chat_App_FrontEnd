@@ -121,7 +121,6 @@ const Register = () => {
         </Box>
         <Button 
           variant="contained"
-          lowerCase
           sx={{
             mt: 2,
         boxShadow:'none',

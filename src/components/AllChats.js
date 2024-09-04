@@ -157,14 +157,14 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
     }, [ dispatch, token]);
 
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-          dispatch(GetAllChats({ token }));
-      }, 1000); // Dispatches every 1000ms (1 second)
+  //   useEffect(() => {
+  //     const interval = setInterval(() => {
+  //         dispatch(GetAllChats({ token }));
+  //     }, 1000); // Dispatches every 1000ms (1 second)
 
-      // Cleanup the interval on component unmount
-      return () => clearInterval(interval);
-  }, [dispatch, token]); // Dependencies include dispatch and token
+  //     // Cleanup the interval on component unmount
+  //     return () => clearInterval(interval);
+  // }, [dispatch, token]); // Dependencies include dispatch and token
 
 
     const handleChange = (event) => {
@@ -248,47 +248,30 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
 
   };
   const [currentChat, setCurrentChat] = useState();
+  const lastUpdatedByRef = useRef(null);
 
   useEffect(() => {
-    // Toggle logic for currentChat
-    if (filterSelected) {
-      setCurrentChat(filterSelected);
-      console.log(filterSelected)
-    } else if (selectedChat) {
-      console.log(selectedChat)
+    console.log('selectedChat:', selectedChat);
+    console.log('filterSelected:', filterSelected);
+    console.log('lastUpdatedByRef:', lastUpdatedByRef.current);
+  
+    if (selectedChat) {
+      // Set currentChat to selectedChat if available
       setCurrentChat(selectedChat);
-   
+      lastUpdatedByRef.current = 'selectedChat';
+    } else if (filterSelected) {
+      // Only set currentChat to filterSelected if it hasn't been set by selectedChat
+      if (lastUpdatedByRef.current !== 'selectedChat') {
+        setCurrentChat(filterSelected);
+        lastUpdatedByRef.current = 'filterSelected';
+      }
     }
   }, [selectedChat, filterSelected]);
-
-
-  // useEffect(() => {
-  //   // Toggle logic for currentChat
-  //   if (filterSelected) {
-  //     console.log(filterSelected)
-  //     setCurrentChat(filterSelected);
-  //   }
-  // }, [filterSelected]);
-  // useEffect(() => {
-  //   // Toggle logic for currentChat
-  //   if (selectedChat) {
-  //     setCurrentChat(selectedChat);
-  //   }
-  // }, [selectedChat]);
-
-
-
-
-
-//   useEffect(()=>{
-
-// if(selectedChat !== null) {
-
-//   setCurrentChat(filterSelected);
-// }
-//   },[]);
-
-
+  
+  // Add another useEffect to debug ref changes
+  useEffect(() => {
+    console.log('Last updated by ref:', lastUpdatedByRef.current);
+  }, [selectedChat, filterSelected]);
     return (
       <Container
         disableGutters
