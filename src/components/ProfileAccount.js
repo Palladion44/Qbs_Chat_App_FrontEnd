@@ -14,23 +14,23 @@ import FormControl from "@material-ui/core/FormControl";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { save_info, setPhoneNumber } from "../features/auth/authSlice";
-import { FilledInput} from '@mui/material';
-import '@fontsource/poppins/700.css'; // Import the Poppins font
-import '@fontsource/poppins/600.css'; // Import the Poppins font
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/500.css';
+import { FilledInput } from "@mui/material";
+import "@fontsource/poppins/700.css"; // Import the Poppins font
+import "@fontsource/poppins/600.css"; // Import the Poppins font
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
 
 const ProfileAccount = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { status, step } = useSelector((state) => state.auth);
+
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { status, step } = useSelector((state) => state.auth);
 
   // useEffect(() => {
   //   if (step === 'roleSelect') {
@@ -60,7 +60,6 @@ const ProfileAccount = () => {
     event.preventDefault();
   };
 
-
   return (
     <Container
       disableGutters
@@ -74,269 +73,267 @@ const ProfileAccount = () => {
     >
       <Box
         sx={{
-          width: '43%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          borderTopRightRadius: '5%',
-          borderBottomRightRadius: '5%',
+          width: "43%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          borderTopRightRadius: "5%",
+          borderBottomRightRadius: "5%",
         }}
       >
-        
-        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
-          borderBottomRightRadius: '24px' }} />
-        <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
-              </Box>
-        <Box
-          sx={{
-            width: "57%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection:"column",
-            padding: 4,
-            gap:2.5
+        <img
+          src={background}
+          alt="Background"
+          style={{
+            width: "100%",
+            height: "100vh",
+            borderTopRightRadius: "24px",
+            borderBottomRightRadius: "24px",
           }}
+        />
+        <img
+          src={centeredImage}
+          alt="Centered"
+          style={{ position: "absolute", width: "60%", height: "auto" }}
+        />
+      </Box>
+      <Box
+        sx={{
+          width: "57%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          padding: 4,
+          gap: 2.5,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{ mb: 2, fontFamily: "Poppins", fontWeight: "bold" }}
         >
-          
-            <Typography
-              variant="h4"
-              sx={{ mb: 2, fontFamily: "Poppins", fontWeight: "bold" }}
-            >
-              Register Now
-            </Typography>
+          Register Now
+        </Typography>
 
-             
-            
-              <TextField
-                label="First Name (Required)"
-                margin="none"
+        <TextField
+          label="First Name (Required)"
+          margin="none"
+          variant="filled"
+          InputProps={{
+            disableUnderline: true,
+          }}
+          value={first_name}
+          onChange={(e) => setFirstName(e.target.value)}
+          sx={{
+            "& .MuiFilledInput-root": {
+              backgroundColor: "#F7F7FC",
+              paddingLeft: "10px",
+              height: "59px",
+            },
+            "& .MuiInputBase-input": {
+              padding: 0,
 
-                variant="filled"
-                InputProps={{
-                  disableUnderline: true,
-                }}
-                
-               
-                value={first_name}
-                onChange={(e) => setFirstName(e.target.value)}
-                sx={{
-                  "& .MuiFilledInput-root": {
-                    backgroundColor: "#F7F7FC",
-                    paddingLeft:"10px",
-                    height:"59px"
+              // Adjust padding for correct placeholder positioning
+            },
+            "& .MuiInputLabel-root": {
+              fontFamily: "Poppins",
 
-                  },
-                  "& .MuiInputBase-input": {
-                    padding:0,
+              top: "0px", // Adjust label position if needed
+              color: "#ADB5BD",
+            },
+            "& .MuiInputLabel-shrink": {
+              fontFamily: "Poppins",
 
-                   // Adjust padding for correct placeholder positioning
-                  },
-                  "& .MuiInputLabel-root": {
-    fontFamily:"Poppins",
+              top: "-25px", // Position of the label when shrunk
+              left: "4px", // Position of the label when shrunk
+              fontSize: "1em", // Font size when shrunk
+              color: "#ADB5BD",
+            },
+            borderRadius: "4px",
+            width: "50%",
+            fontFamily: "Poppins",
+          }}
+        />
+        <TextField
+          label="Last Name (Optional)"
+          margin="none"
+          variant="filled"
+          InputProps={{
+            disableUnderline: true,
+          }}
+          value={last_name}
+          onChange={(e) => setLastName(e.target.value)}
+          sx={{
+            "& .MuiFilledInput-root": {
+              backgroundColor: "#F7F7FC",
+              paddingLeft: "10px",
+              height: "59px",
+            },
+            "& .MuiInputBase-input": {
+              padding: 0,
 
-                    top: "0px", // Adjust label position if needed
-                    color: "#ADB5BD",
+              // Adjust padding for correct placeholder positioning
+            },
+            "& .MuiInputLabel-root": {
+              fontFamily: "Poppins",
 
-                  },
-                  "& .MuiInputLabel-shrink": {
-    fontFamily:"Poppins",
+              top: "0px", // Adjust label position if needed
+              color: "#ADB5BD",
+            },
+            "& .MuiInputLabel-shrink": {
+              fontFamily: "Poppins",
 
-                    top: "-25px", // Position of the label when shrunk
-                    left: "4px", // Position of the label when shrunk
-                    fontSize: "1em", // Font size when shrunk
-                    color: "#ADB5BD",
-                  },
-                  borderRadius:"4px",
-                  width:"50%",
-    fontFamily:"Poppins",
+              top: "-25px", // Position of the label when shrunk
+              left: "4px", // Position of the label when shrunk
+              fontSize: "1em", // Font size when shrunk
+              color: "#ADB5BD",
+            },
+            fontFamily: "Poppins",
 
-                }}
-              />
-              <TextField
-                label="Last Name (Optional)"
-      margin="none"
+            borderRadius: "4px",
+            width: "50%",
+          }}
+        />
+        <TextField
+          label="Password"
+          margin="none"
+          variant="filled" // or "outlined" if you prefer
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            disableUnderline: true, // This removes the underline in filled variant
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end" // Add this to align the icon correctly
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: "50%",
+            fontFamily: "Poppins",
 
-                variant="filled"
+            "& .MuiFilledInput-root": {
+              backgroundColor: "#F7F7FC",
+              paddingLeft: "10px",
+              height: "59px",
+              borderRadius: "4px",
+              "&:before": {
+                borderBottom: "none",
+              },
+              "&:after": {
+                borderBottom: "none",
+              },
+            },
+            "& .MuiInputBase-input": {
+              padding: 0,
+            },
+            "& .MuiInputLabel-root": {
+              fontFamily: "Poppins",
 
-                InputProps={{
-                  disableUnderline: true,
-                }}
-                value={last_name}
-                onChange={(e) => setLastName(e.target.value)}
-                sx={{
-                  "& .MuiFilledInput-root": {
-                    backgroundColor: "#F7F7FC",
-                    paddingLeft:"10px",
-                    height:"59px"
+              top: "0px",
+              color: "#ADB5BD",
+            },
+            "& .MuiInputLabel-shrink": {
+              fontFamily: "Poppins",
 
-                  },
-                  "& .MuiInputBase-input": {
-                    padding:0,
+              top: "-25px",
+              left: "4px",
+              fontSize: "1em",
+              color: "#ADB5BD",
+            },
+          }}
+        />
 
-                   // Adjust padding for correct placeholder positioning
-                  },
-                  "& .MuiInputLabel-root": {
-    fontFamily:"Poppins",
+        <TextField
+          variant="filled"
+          label="Confirm Password"
+          id="confirm-password"
+          type={showConfirmPassword ? "text" : "password"}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          InputProps={{
+            disableUnderline: true, // Removes the underline in filled variant
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowConfirmPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end" // Add this to align the icon correctly
+                >
+                  {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: "50%",
+            fontFamily: "Poppins",
+            "& .MuiFilledInput-root": {
+              backgroundColor: "#F7F7FC",
+              paddingLeft: "10px",
+              height: "59px",
+              borderRadius: "4px",
+              "&:before": {
+                borderBottom: "none",
+              },
+              "&:after": {
+                borderBottom: "none",
+              },
+            },
+            "& .MuiInputBase-input": {
+              padding: 0,
+            },
+            "& .MuiInputLabel-root": {
+              fontFamily: "Poppins",
 
-                    top: "0px", // Adjust label position if needed
-                    color: "#ADB5BD",
+              top: "0px",
+              color: "#ADB5BD",
+            },
+            "& .MuiInputLabel-shrink": {
+              top: "-25px",
+              left: "4px",
+              fontSize: "1em",
+              color: "#ADB5BD",
+            },
+          }}
+        />
 
-                  },
-                  "& .MuiInputLabel-shrink": {
-    fontFamily:"Poppins",
-
-                    top: "-25px", // Position of the label when shrunk
-                    left: "4px", // Position of the label when shrunk
-                    fontSize: "1em", // Font size when shrunk
-                    color: "#ADB5BD",
-                  },
-    fontFamily:"Poppins",
-
-                  borderRadius:"4px",
-                  width:"50%",
-                }}
-              />
-                <TextField 
-      label="Password"
-      margin="none"
-
-      variant="filled" // or "outlined" if you prefer
-      type={showPassword ? "text" : "password"}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      InputProps={{
-        disableUnderline: true, // This removes the underline in filled variant
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleClickShowPassword}
-              onMouseDown={handleMouseDownPassword}
-            >
-              {showPassword ? <Visibility /> : <VisibilityOff />}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-      sx={{
-        width: "50%",
-    fontFamily:"Poppins",
-        
-        "& .MuiFilledInput-root": {
-          backgroundColor: "#F7F7FC",
-          paddingLeft: "10px",
-          height: "59px",
-          borderRadius: "4px",
-          "&:before": {
-            borderBottom: "none",
-          },
-          "&:after": {
-            borderBottom: "none",
-          },
-        },
-        "& .MuiInputBase-input": {
-          padding: 0,
-        },
-        "& .MuiInputLabel-root": {
-    fontFamily:"Poppins",
-
-          top: "0px",
-          color: "#ADB5BD",
-        },
-        "& .MuiInputLabel-shrink": {
-    fontFamily:"Poppins",
-
-          top: "-25px",
-          left: "4px",
-          fontSize: "1em",
-          color: "#ADB5BD",
-        },
-      }}
-    />
-         
-         <TextField
-  variant="filled"
-  label="Confirm Password"
-  id="confirm-password"
-  type={showConfirmPassword ? "text" : "password"}
-  value={confirmPassword}
-  onChange={(e) => setConfirmPassword(e.target.value)}
-  InputProps={{
-    disableUnderline: true, // Removes the underline in filled variant
-    endAdornment: (
-      <InputAdornment position="end">
-        <IconButton
-          aria-label="toggle password visibility"
-          onClick={handleClickShowConfirmPassword}
-          onMouseDown={handleMouseDownPassword}
-        >
-          {showConfirmPassword ? (
-            <Visibility />
-          ) : (
-            <VisibilityOff />
-          )}
-        </IconButton>
-      </InputAdornment>
-    ),
+<button
+  style={{
+    marginTop: "16px",  // mt: 2 in Material-UI (spacing unit)
+    backgroundColor: "#1F487C",
+    textTransform: "capitalize",  // Ensures the text is not uppercase
+    width: "35%",  // Adjust width as needed
+    borderRadius: "50px",
+    fontFamily: "Poppins, sans-serif",  // Font family
+    height: "52px",
+    boxShadow: "none",
+    color: "white",  // Text color
+    border: "none",  // No border
+    cursor: "pointer",
   }}
-  sx={{
-    width: "50%",
-    fontFamily:"Poppins",
-    "& .MuiFilledInput-root": {
-      backgroundColor: "#F7F7FC",
-      paddingLeft: "10px",
-      height: "59px",
-      borderRadius: "4px",
-      "&:before": {
-        borderBottom: "none",
-      },
-      "&:after": {
-        borderBottom: "none",
-      },
-    },
-    "& .MuiInputBase-input": {
-      padding: 0,
-    },
-    "& .MuiInputLabel-root": {
-    fontFamily:"Poppins",
-      
-      top: "0px",
-      color: "#ADB5BD",
-    },
-    "& .MuiInputLabel-shrink": {
-      top: "-25px",
-      left: "4px",
-      fontSize: "1em",
-      color: "#ADB5BD",
-    },
+  onMouseEnter={(e) => {
+    e.target.style.backgroundColor = "#1F487C";  // Hover effect
   }}
-/>
+  onMouseLeave={(e) => {
+    e.target.style.backgroundColor = "#1F487C";  // Reset hover effect
+  }}
+  onClick={handleContinue}  // Add your click handler
+>
+  Continue
+</button>
 
-         
-              <Button
-                variant="contained"
-                sx={{
-                  mt: 2,
-                  boxShadow:"none",
-                  backgroundColor:'#1F487C',
-                  textTransform: 'capitalize', // Add this line to make text lowercase
-                  width: "35%",
-                  borderRadius: "50px",
-                  fontFamily:"Poppins",
-                  height: "52px",
-                  "&:hover": {
-                    backgroundColor: "#1F487C",
-                  },
-                }}
-                onClick={handleContinue}
-              >
-                Continue
-              </Button>
-            </Box>
-          
-      
+      </Box>
     </Container>
   );
 };

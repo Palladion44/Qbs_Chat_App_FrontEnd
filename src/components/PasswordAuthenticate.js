@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import { Box, Button, Container, Typography, TextField } from "@mui/material";
 import Avatar from "../assets/Avatar.png";
 import background from "../assets/background.jpg";
@@ -27,6 +27,7 @@ const PasswordAuthenticate = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -80,107 +81,137 @@ const PasswordAuthenticate = () => {
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
-        height: "100vh",
       }}
     >
-      <Box sx={{ display: "flex", width: "120%", boxShadow: 3 }}>
         <Box
           sx={{
-            width: "50%",
+            width: "43%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
             borderTopRightRadius: "5%",
             borderBottomRightRadius: "5%",
-            overflow: "hidden",
           }}
         >
-          <img
-            src={background}
-            alt="Background"
-            style={{ width: "100%", height: "100vh" }}
-          />
-          <img
-            src={centeredImage}
-            alt="Centered"
-            style={{ position: "absolute", width: "60%", height: "auto" }}
-          />
+        <img src={background} alt="Background" style={{ width: '100%', height: '100vh',borderTopRightRadius: '24px',
+          borderBottomRightRadius: '24px' }} />
+        <img src={centeredImage} alt="Centered" style={{ position: 'absolute', width: '60%', height: 'auto' }} />
+          
         </Box>
         <Box
           sx={{
-            width: "50%",
+            width: "57%",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             padding: 4,
+            gap:2.5
           }}
         >
-          <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="h4"
               sx={{ mb: 2, fontFamily: "Poppins", fontWeight: "bold" }}
             >
               Login Now
             </Typography>
-            <Box
-              sx={{
-                position: "relative",
-                display: "inline-block",
-                marginBottom: 2,
-              }}
-            >
+           
               <img
                 src={Avatar}
                 alt="User Avatar"
                 style={{ width: "150px", height: "150px", borderRadius: "50%" }}
               />
-            </Box>
-            <Box>
-              <FormControl fullWidth margin="normal">
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <Input
+           
+                <TextField
+                  variant="filled"
+
+                      label="Password"
+                  margin="none"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  endAdornment={
+                  InputProps={{
+                    disableUnderline: true, // This removes the underline in filled variant
+                  endAdornment:(
                     <InputAdornment position="end">
                       <IconButton
                         aria-label="toggle password visibility"
                         onClick={handleClickShowPassword}
                         onMouseDown={handleMouseDownPassword}
+                        edge="end"  // Add this to align the icon correctly
+
                       >
                         {showPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
                     </InputAdornment>
-                  }
+                  ),
+                }}
                   sx={{
+                    width: "50%",
+                fontFamily:"Poppins",
+                    
+                    "& .MuiFilledInput-root": {
+                      backgroundColor: "#F7F7FC",
+                      paddingLeft: "10px",
+                      height: "59px",
+                      borderRadius: "4px",
+                      "&:before": {
+                        borderBottom: "none",
+                      },
+                      "&:after": {
+                        borderBottom: "none",
+                      },
+                    },
                     "& .MuiInputBase-input": {
-                      height: "30px",
+                      padding: 0,
+                    },
+                    "& .MuiInputLabel-root": {
+                fontFamily:"Poppins",
+            
+                      top: "0px",
+                      color: "#ADB5BD",
+                    },
+                    "& .MuiInputLabel-shrink": {
+                fontFamily:"Poppins",
+            
+                      top: "-25px",
+                      left: "4px",
+                      fontSize: "1em",
+                      color: "#ADB5BD",
                     },
                   }}
                 />
-              </FormControl>
-            </Box>
-            <Button
-              variant="contained"
-              sx={{
-                mt: 2,
-                backgroundColor: "#1F487C",
-                borderRadius: "50px",
-                width: "200px",
-                height: "40px",
-                "&:hover": { backgroundColor: "#1F487C" },
-              }}
-              onClick={handleContinue}
-            >
-              Login
-            </Button>
+            <button
+  style={{
+    marginTop: "16px",  // mt: 2 (MUI spacing unit equivalent)
+    backgroundColor: "#1F487C",
+    textTransform: "capitalize",  // Capitalize the first letter of the text
+    width: "35%",  // Adjust width
+    borderRadius: "50px",
+    fontFamily: "Poppins, sans-serif",  // Apply Poppins font
+    height: "52px",  // Set button height
+    color: "white",  // Text color (corrected spelling from "whtie")
+    border: "none",  // No border
+    boxShadow: "none",  // Remove any default shadow
+    cursor: "pointer",
+    transition: "background-color 0.3s ease, color 0.3s ease",  // Smooth transition for hover effects
+  }}
+  onMouseEnter={(e) => {
+    e.target.style.backgroundColor = "#1F487C";  // Hover background color
+    e.target.style.color = "white";  // Keep text color white
+  }}
+  onMouseLeave={(e) => {
+    e.target.style.backgroundColor = "#1F487C";  // Reset background on hover out
+    e.target.style.color = "white";  // Reset text color
+  }}
+  onClick={handleContinue}  // Add your click handler
+>
+  Login
+</button>
+
           </Box>
-        </Box>
-      </Box>
     </Container>
   );
 };

@@ -9,19 +9,18 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import Avatar from "../assets/Avatar.png";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import background from "../assets/background.jpg";
 import centeredImage from "../assets/image_login.png";
 import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userDetails } from "../features/auth/authSlice"; // Import register
-// import { userDetails } from '../features/auth/actions';
-import '@fontsource/poppins/700.css'; // Import the Poppins font
-import '@fontsource/poppins/600.css'; // Import the Poppins font
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/500.css';
 
+// import { userDetails } from '../features/auth/actions';
+import "@fontsource/poppins/700.css"; // Import the Poppins font
+import "@fontsource/poppins/600.css"; // Import the Poppins font
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
 
 const RoleSelect = () => {
   const navigate = useNavigate();
@@ -29,6 +28,8 @@ const RoleSelect = () => {
   const [role, setRole] = useState("");
   const [imagex, setUploadedImgx] = useState(null);
   const [image, setUploadedImg] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingRegister, setIsLoadingRegister] = useState(false);
 
   const [previewUrl, setPreviewUrl] = useState(null);
 
@@ -64,42 +65,16 @@ const RoleSelect = () => {
   formData.append("role", role);
   formData.append("image", image);
 
-  //   // console.log("Form data: " + {...formData})
-  //   const formDataObj = {};
-
-  // formData.forEach((value, key) => {
-  //   formDataObj[key] = value;
-  // });
-
-  // console.log(formDataObj);
   const handleContinue = (e) => {
     e.preventDefault();
-
-    const action = dispatch(userDetails({ formData, navigate }));
-
-    // try {
-    //   if (userDetails.fulfilled.match(action)) {
-    //     if (action.payload) {
-    //       navigate('/Login');
-    //     } else {
-    //       setSnackbarMessage(action.payload.message || 'User not registered successfully');
-    //       setOpenSnackbar(true);
-    //     }
-    //   } else {
-    //     setSnackbarMessage(error.message || 'An error occurred');
-    //     setOpenSnackbar(true);
-    //   }
-    // } catch (err) {
-    //   setSnackbarMessage('An unexpected error occurred');
-    //   setOpenSnackbar(true);
-    // }
+    setIsLoadingRegister(true);  // Set loading to true when the button is clicked
+  
+    // Simulate an async action or actual dispatch
+    dispatch(userDetails({ formData, navigate }))
+      .finally(() => {
+        setIsLoadingRegister(false);  // Reset loading when done
+      });
   };
-
-  // useEffect(() => {
-  //   if (status === 'succeeded' && registrationMessage) {
-  //     navigate('/Login');
-  //   }
-  // }, [status, registrationMessage, navigate]);
 
   const handleDepartmentChange = (event) => {
     setDepartment(event.target.value);
@@ -112,23 +87,27 @@ const RoleSelect = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setIsLoading(true); // Start loading
+  
       setUploadedImgx(file); // Assuming this is used elsewhere
       setUploadedImg(file); // Assuming this is used elsewhere
-
-      // Generate a URL for the image to be used in the img tag
+  
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result;
         if (result && typeof result === "string") {
           setPreviewUrl(result); // Set the image URL to previewUrl
+          setIsLoading(false); // End loading
         } else {
           console.error("Invalid image data URL");
           setPreviewUrl(null); // Handle invalid data URL
+          setIsLoading(false); // End loading even if there's an error
         }
       };
-      reader.readAsDataURL(file); // Convert the file to a data URL
+      reader.readAsDataURL(file);
     }
   };
+  
 
   return (
     <Container
@@ -194,25 +173,29 @@ const RoleSelect = () => {
               marginBottom: 2,
             }}
           >
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="User Avatar"
-                style={{ width: "150px", height: "150px", borderRadius: "50%" }}
-              />
-            ) : (
-              <img
-              alt="User Avatar"
-              src={Avatar}
-                style={{ width: "150px", height: "150px", borderRadius: "50%" }}
-              />
-            )}
+            {isLoading ? (
+  <div style={{ width: "150px", height: "150px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <span>Loading...</span>
+  </div>
+) : previewUrl ? (
+  <img
+    src={previewUrl}
+    alt="User Avatar"
+    style={{ width: "150px", height: "150px",outline:"1px solid blue", borderRadius: "50%" }}
+  />
+) : (
+  <img
+    alt="User Avatar"
+    src="/PlaceHolderForProfileImage.png"
+    style={{ width: "150px", height: "150px",outline:"1px solid blue", borderRadius: "50%" }}
+  />
+)}
             <input
               accept=".png, .jpg, .jpeg"
               style={{ display: "none" }}
               id="icon-button-file"
               type="file"
-              onClick={handleImageUpload}
+              onChange={handleImageUpload}
             />
             <label htmlFor="icon-button-file">
               <AddCircleIcon
@@ -228,41 +211,43 @@ const RoleSelect = () => {
             </label>
           </Box>
           <Box disableGutters>
-          <FormControl
-  margin="normal"
-  sx={{ width: "486px",fontFamily:"Poppins" }}
->
-  <InputLabel id="department-label" sx={{fontFamily:"Poppins"}}>Select Department</InputLabel>
-  <Select
-    labelId="department-label"
-    value={department}
-    onChange={handleDepartmentChange}
-    label="Department"
-    sx={{
-      backgroundColor: "#F7F7FC",
-      border: "none",
-      outline: "none",
-      '& .MuiOutlinedInput-notchedOutline': {
-        border: "none", // Remove the outline
-      },
-      '&:hover .MuiOutlinedInput-notchedOutline': {
-        border: "none", // Remove the outline on hover
-      },
-      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        border: "none", // Remove the outline when focused
-      },
-    }}
-  >
-    <MenuItem value="">
-      <em>None</em>
-    </MenuItem>
-    <MenuItem value="sap">SAP</MenuItem>
-    <MenuItem value="webnapp">WEB N APP</MenuItem>
-    <MenuItem value="erp">ERP</MenuItem>
-    <MenuItem value="qa">QA</MenuItem>
-  </Select>
-</FormControl>
-</Box>
+            <FormControl
+              margin="normal"
+              sx={{ width: "486px", fontFamily: "Poppins" }}
+            >
+              <InputLabel id="department-label" sx={{ fontFamily: "Poppins" }}>
+                Select Department
+              </InputLabel>
+              <Select
+                labelId="department-label"
+                value={department}
+                onChange={handleDepartmentChange}
+                label="Department"
+                sx={{
+                  backgroundColor: "#F7F7FC",
+                  border: "none",
+                  outline: "none",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    border: "none", // Remove the outline
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    border: "none", // Remove the outline on hover
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    border: "none", // Remove the outline when focused
+                  },
+                }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value="sap">SAP</MenuItem>
+                <MenuItem value="webnapp">WEB N APP</MenuItem>
+                <MenuItem value="erp">ERP</MenuItem>
+                <MenuItem value="qa">QA</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <Box disableGutters>
             <FormControl
               disableGutters
@@ -270,7 +255,9 @@ const RoleSelect = () => {
               margin="normal"
               sx={{ width: "486px" }}
             >
-              <InputLabel sx={{fontFamily:"Poppins"}} id="role-label">Select Role</InputLabel>
+              <InputLabel sx={{ fontFamily: "Poppins" }} id="role-label">
+                Select Role
+              </InputLabel>
               <Select
                 labelId="role-label"
                 value={role}
@@ -280,13 +267,13 @@ const RoleSelect = () => {
                   backgroundColor: "#F7F7FC",
                   border: "none",
                   outline: "none",
-                  '& .MuiOutlinedInput-notchedOutline': {
+                  "& .MuiOutlinedInput-notchedOutline": {
                     border: "none", // Remove the outline
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
                     border: "none", // Remove the outline on hover
                   },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                     border: "none", // Remove the outline when focused
                   },
                 }}
@@ -302,23 +289,24 @@ const RoleSelect = () => {
             </FormControl>
           </Box>
           <Button
-            variant="contained"
-            sx={{
-              mt: 2,
-              backgroundColor: "#1F487C",
-              borderRadius: "50px",
-              width: "327px",
-              textTransform:"capitalize",
-              boxShadow:"none",
-              height: "52px",
-              "&:hover": {
-                backgroundColor: "#1F487C",
-              },
-            }}
-            onClick={handleContinue}
-          >
-            Save
-          </Button>
+  variant="contained"
+  sx={{
+    mt: 2,
+    backgroundColor: "#1F487C",
+    borderRadius: "50px",
+    width: "327px",
+    textTransform: "capitalize",
+    boxShadow: "none",
+    height: "52px",
+    "&:hover": {
+      backgroundColor: "#1F487C",
+    },
+  }}
+  onClick={handleContinue}
+  disabled={isLoadingRegister}  // Disable button during loading
+>
+  {isLoadingRegister ? "Loading..." : "Save"}  {/* Change text to 'Loading...' */}
+</Button>
         </Box>
       </Box>
     </Container>

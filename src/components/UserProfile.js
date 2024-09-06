@@ -16,12 +16,11 @@ import { useDispatch } from "react-redux";
 import {logout} from  "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
-const UserProfile = ({ onClose ,profile}) => {
+const UserProfile = ({ onClose ,profile,name}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // State for managing the fields
-  const [name, setName] = useState("John");
   const [about, setAbout] = useState("Be happy");
 
   // State for managing edit mode
@@ -82,13 +81,13 @@ const UserProfile = ({ onClose ,profile}) => {
               mb: 2,
             }}
           >
-            Your Name
+          Your Name
           </Typography>
           <TextField
             variant="outlined"
             size="small"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            // onChange={(e) => setName(e.target.value)}
             InputProps={{
               readOnly: !isEditingName,
               endAdornment: (

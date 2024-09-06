@@ -10,7 +10,7 @@
     Drawer,
     IconButton,
     AppBar,
-    Toolbar,
+    Toolbar,Button
   } from "@mui/material";
   import { useNavigate } from "react-router-dom";
   import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
@@ -64,9 +64,11 @@ import '@fontsource/poppins/500.css';
     const error = useSelector((state) => state.auth.error);
     const conversation_id = useSelector((state) => state.auth.error);
     const selectedContact = useSelector((state) => state.auth.selectedContact);
+    const SelectedContact = useSelector((state) => state.auth.selectedContact);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState({})
     const [showClearIcon, setShowClearIcon] = useState("none");
+    const [currentChat, setCurrentChat] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -77,21 +79,27 @@ import '@fontsource/poppins/500.css';
     const username = localStorage.getItem("username");
     const localtoken = localStorage.getItem("token");
     const [singlecontactData,setSingleContactData] = useState();
+    const [selectedChat, setSelectedChat] = useState();
+    const filterSelected1 = allUsers?.filter((user) =>
+      user.participants.some((participant) => participant._id === selectedContact?._id)
+  );
+  const filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filterSelected1;
+  const [filterSelectedx,setFilterSelectedx]=useState(filterSelected);
 
 
 //     console.log(myIP)
-    // console.log(selectedContact)
-// console.log(users)
-const filterSelected1 = allUsers?.filter((user) =>
-  user.participants.some((participant) => participant._id === selectedContact?._id)
-);
-let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filterSelected1;
-
-
+    console.log(selectedContact)
+  useEffect(() => {
+    setFilterSelectedx(filterSelected)
+  },[])
 // if(filterSelected){
 //   setSingleContactData(filterSelected)
 // console.log(singlecontactData)
 // }
+
+useEffect(() => {
+  console.log("...............................")
+},[filterSelectedx])
 
     useEffect(() => {
 
@@ -157,14 +165,14 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
     }, [ dispatch, token]);
 
 
-  //   useEffect(() => {
-  //     const interval = setInterval(() => {
-  //         dispatch(GetAllChats({ token }));
-  //     }, 1000); // Dispatches every 1000ms (1 second)
+    useEffect(() => {
+      const interval = setInterval(() => {
+          dispatch(GetAllChats({ token }));
+      }, 1000); // Dispatches every 1000ms (1 second)
 
-  //     // Cleanup the interval on component unmount
-  //     return () => clearInterval(interval);
-  // }, [dispatch, token]); // Dependencies include dispatch and token
+      // Cleanup the interval on component unmount
+      return () => clearInterval(interval);
+  }, [dispatch, token]); // Dependencies include dispatch and token
 
 
     const handleChange = (event) => {
@@ -177,11 +185,13 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
       setShowClearIcon("none");
     };
     
-    const [selectedChat, setSelectedChat] = useState();
+    
     
     const handleChatClick = (user) => {
-      setSelectedChat(user)
+      dispatch(setSelectedContact(user));
+
       console.log(user)
+      setFilterSelectedx(null);
       setIsContactsOpen(false);
     };
     
@@ -234,39 +244,62 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
           return date.toLocaleDateString(); // e.g., "8/23/2024" or "August 23, 2024" based on locale
       }
   };
+  const [selectedFilter, setSelectedFilter] = useState("All");
+
+  // Handle filter change
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+  };
+
+  // Filter users based on search query and selected filter
   const filteredUsers = searchQuery
   ? allUsers?.filter((user) =>
       user.participants?.some(participant =>
         participant.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    )
-  : allUsers; 
+      ) &&
+      !(user.isGroupChat === false && user.lastMessage === null) // Exclude non-group chats with no LastMessages
+    ).filter(user => selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
+  : allUsers?.filter(user => 
+      !(user.isGroupChat === false && user.lastMessage === null) && // Exclude non-group chats with no LastMessages
+      (selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
+    );
 
   const handleClear = () => {
     setSearchQuery(''); // Clear the input field
 
 
   };
-  const [currentChat, setCurrentChat] = useState();
+  // const [currentChat, setCurrentChat] = useState();
   const lastUpdatedByRef = useRef(null);
 
-  useEffect(() => {
-    console.log('selectedChat:', selectedChat);
-    console.log('filterSelected:', filterSelected);
-    console.log('lastUpdatedByRef:', lastUpdatedByRef.current);
+//   useEffect(() => {
+//     console.log('selectedChat:', selectedChat);
+//     console.log('filterSelected:', filterSelected);
+//     console.log('lastUpdatedByRef:', lastUpdatedByRef.current);
+//     // if(selectedChat){
+//     //   setCurrentChat(selectedChat);
+//     //   dispatch(setSelectedContact)
+//     // }
   
-    if (selectedChat) {
-      // Set currentChat to selectedChat if available
-      setCurrentChat(selectedChat);
-      lastUpdatedByRef.current = 'selectedChat';
-    } else if (filterSelected) {
-      // Only set currentChat to filterSelected if it hasn't been set by selectedChat
-      if (lastUpdatedByRef.current !== 'selectedChat') {
-        setCurrentChat(filterSelected);
-        lastUpdatedByRef.current = 'filterSelected';
-      }
-    }
-  }, [selectedChat, filterSelected]);
+//     if (selectedChat) {
+//       // Set currentChat to selectedChat if available
+//       setCurrentChat(selectedChat);
+//     } else if (filterSelected) {
+//       // Only set currentChat to filterSelected if it hasn't been set by selectedChat
+//       if (lastUpdatedByRef.current !== 'selectedChat') {
+//         setCurrentChat(filterSelected);
+//       }
+//     }
+//   },
+//   [selectedChat, filterSelectedx]
+// );
+
+useEffect(() => {
+setCurrentChat(selectedContact)
+}, [selectedContact]);
+
+
+
   
   // Add another useEffect to debug ref changes
   useEffect(() => {
@@ -361,6 +394,52 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
 />
       </FormControl>
     </Box>
+     {/* Filter Buttons */}
+     <Box sx={{ paddingBottom: 1, display: 'flex', justifyContent: 'left' }}>
+  <Button
+    sx={{
+      backgroundColor: selectedFilter === "All" ? "#1F487C" : "transparent", 
+      borderColor: selectedFilter === "All" ? "transparent" : "#1F487C", 
+      color: selectedFilter === "All" ? "white" : "#1F487C", 
+      boxShadow: "none",
+      borderRadius: "30px",
+      minWidth: "66px", // Ensure both buttons have the same min width
+      height: "27px",
+      fontWeight: "400",
+      fontFamily: "Poppins",
+      fontSize: "14px",
+      textTransform: "capitalize", // Makes text consistent
+      marginLeft: "10px",
+      padding: '10px',
+    }}
+    variant={selectedFilter === "All" ? "contained" : "outlined"}
+    onClick={() => handleFilterChange("All")}
+  >
+    All
+  </Button>
+  <Button
+    sx={{
+      backgroundColor: selectedFilter === "Groups" ? "#1F487C" : "transparent", 
+      borderColor: selectedFilter === "Groups" ? "transparent" : "#1F487C", 
+      color: selectedFilter === "Groups" ? "white" : "#1F487C", 
+      boxShadow: "none",
+      borderRadius: "30px",
+      minWidth: "66px", // Ensure both buttons have the same min width
+      height: "27px",
+      fontWeight: "400",
+      fontFamily: "Poppins",
+      fontSize: "14px",
+      textTransform: "capitalize", 
+      marginLeft: "10px",
+      padding: '10px',
+    }}
+    variant={selectedFilter === "Groups" ? "contained" : "outlined"}
+    onClick={() => handleFilterChange("Groups")}
+  >
+    Group
+  </Button>
+</Box>
+
           {/* Chat List */}
           <Box sx={{ overflowY: "auto" }} >
           {
@@ -373,7 +452,7 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
           alignItems: "center",
           padding: 2,
           borderBottom: "1px solid #eee",
-          backgroundColor: selectedChat && selectedChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
+          backgroundColor: currentChat && currentChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
           cursor: "pointer",
           "&:hover": {
             backgroundColor: "#f9f9f9",
@@ -381,7 +460,7 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
         }}
         onClick={() => handleChatClick(user)}
       >
-        <Avatar src={user.participants[0]?.profile_url} />
+        <Avatar src={user?.groupImage || user?.participants[0]?.profile_url} />
         <Box sx={{ marginLeft: 2, width: "85%" }}>
           <Typography
             variant="subtitle1"
@@ -405,7 +484,7 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
             }}
           >
             <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
-              {user.participants[0]?.name}
+              {user.groupName || user.participants[0]?.name}
             </span>
             <Typography
               variant="body2"
@@ -453,12 +532,16 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
 
         {/* Main Content Area */}
         {currentChat ? (
-        <PersonalChat
-          conversationId={currentChat._id}
-          name={currentChat.participants[0]?.name}
-          profileimage={currentChat.participants[0]?.profile_url}
-        />
-      ) :
+    <PersonalChat
+        conversationId={currentChat._id}
+        name={currentChat.participants[0]?.name}
+        profileimage={currentChat.participants[0]?.profile_url}
+        GroupName={currentChat.groupName}
+        GroupProfileImage={currentChat.groupImage}
+    />
+)
+        
+      :
         <Box
           sx={{
             width: "70%",
@@ -488,7 +571,7 @@ let filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filte
           ModalProps={{ keepMounted: true }}
           sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
         >
-          <UserProfile profile={user?.user?.profile_url} onClose={handleProfileClose} />
+          <UserProfile profile={user?.user?.profile_url} name={user?.user?.name} onClose={handleProfileClose} />
         </Drawer>
 
         {/* Contacts Drawer */}

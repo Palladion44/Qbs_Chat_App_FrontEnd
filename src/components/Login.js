@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { login, setStep, setPhoneNumber } from "../features/auth/authSlice";
 import background from '../assets/background.jpg';
 import centeredImage from "../assets/image_login.png";
+import './InputPhoneStyling.css'; // Import your global CSS file
 
 const Login = () => {
   const [phone_number, setPhone] = useState("");
@@ -100,9 +101,11 @@ const Login = () => {
         <Box sx={{mr:30}} >
           <PhoneInput
             country={"pk"}
+            placeholder="Phone Number"
             value={phone_number}
             onChange={handlePhoneChange}
-            inputStyle={{ width: "200%" }}
+            inputClass="form-control" // Apply custom class if needed
+
           />
         </Box>
         <Button

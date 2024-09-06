@@ -21,9 +21,9 @@ const MessageWithReadMore = ({ message, sender, userId }) => {
         <Button
           size="small"
           onClick={toggleReadMore}
-          sx={{ padding: 0, minWidth: 'auto',fontSize:"10px" }}
+          sx={{ padding: 0, minWidth: 'auto',fontSize:"12px",textTransform:"capitalize" }}
         >
-          {isExpanded ? '' : 'Read more'}
+          {isExpanded ? 'Show less' : 'Read more'}
         </Button>
       )}
     </div>

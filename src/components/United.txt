@@ -1,0 +1,10 @@
+{
+    "_id": "66acd0879694c9bb9b18d406",
+    "phone_number": "923002104033",
+    "name": "Qasim Rehan",
+    "profile_url": "https://res.cloudinary.com/dr60dh33b/image/upload/v1722601607/profile-images/tf3c9zeivzmftxa02cun.png",
+    "createdAt": "2024-08-02T12:26:47.207Z",
+    "updatedAt": "2024-08-02T12:26:47.207Z",
+    "__v": 0,
+    "department": null
+}

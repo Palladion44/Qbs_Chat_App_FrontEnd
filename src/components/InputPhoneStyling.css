@@ -1,0 +1,60 @@
+/* Style the flag dropdown */
+.react-phone-input-2 .flag-dropdown {
+    display: flex !important;
+    background-color: red !important; /* Ensure the dropdown is flex container */
+    align-items: center !important; /* Center items vertically */
+    color: red !important;
+  }
+  
+  /* Style each country item in the dropdown */
+  .react-phone-input-2 .country-list .country {
+    display: flex !important; /* Flexbox layout */
+    align-items: center !important; /* Center items vertically */
+  }
+  
+  /* Style the flag and country code */
+  .react-phone-input-2 .country-list .country .flag,
+  .react-phone-input-2 .country-list .country .country-code {
+    margin-right: 10px !important; /* Space between flag and country code */
+  }
+  
+  /* Additional styling for country code */
+  .react-phone-input-2 .country-list .country .country-code {
+    font-size: 16px !important; /* Adjust font size */
+    color: #1F487C !important; /* Custom color for country code */
+  }
+  .react-phone-input-2 .form-control {
+    padding-left: 40px !important; /* Adjust padding to accommodate flag and code */
+  }
+  
+  /* Style the flag in the input field */
+  .react-phone-input-2 .react-phone-input-2 .flag {
+    position: absolute !important;
+    left: 10px !important; /* Position flag inside the input */
+    top: 50% !important;
+    transform: translateY(-50%) !important; /* Center vertically */
+  }
+  
+  /* Style the country code within the input */
+  .react-phone-input-2 .form-control {
+    padding-left: 60px !important; /* Adjust padding for country code */
+  }
+  .form-control {
+    background-color: #F7F7FC !important;
+}
+  .flag-dropdown {
+    background-color: #F7F7FC !important;
+    border: none !important;
+  }
+  .flag-dropdown:hover{
+    background-color: #F7F7FC !important;
+    border: none !important;
+  }
+   .form-control {
+    padding-left: 60px !important;
+    border-radius: 5px !important;
+    border: none !important;
+  }
+  .flag{
+
+  }

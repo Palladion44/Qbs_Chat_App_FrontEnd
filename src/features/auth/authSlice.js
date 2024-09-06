@@ -25,6 +25,7 @@ const initialState = {
   sender_ids: [],
   name: null,
   isAuthenticated: false,
+  selectedContact: null,
   setSelectedContact:null
 };
 const baseUrl = process.env.BASE_URL
@@ -292,8 +293,8 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.isAuthenticated = false;
-      state.user = null;
-      // localStorage.clear();
+      state.selectedContact = null;
+      localStorage.clear();
       // Optionally clear local storage or other state management
     },
   },
