@@ -7,22 +7,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { login, setStep, setPhoneNumber } from "../features/auth/authSlice";
 import background from '../assets/background.jpg';
 import centeredImage from "../assets/image_login.png";
+import { Snackbar, Alert } from '@mui/material';
+
 import './InputPhoneStyling.css'; // Import your global CSS file
 
 const Login = () => {
+  const { error } = useSelector((state) => state.auth);
   const [phone_number, setPhone] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const { status, registrationMessage, error } = useSelector(
-    (state) => state.auth
-  );
-  const { step } = useSelector((state) => state.auth);
+  const [snackbarMessage, setSnackbarMessage] = React.useState('');
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
   const handlePhoneChange = (value) => {
     setPhone(value);
-    console.log(value);
+    // console.log(value);
   };
 
   const handleLogin = async () => {
@@ -33,17 +32,17 @@ const Login = () => {
           dispatch(setPhoneNumber(phone_number)); // Save phone number in redux store
           navigate("/PasswordAuthenticate");
         } else {
-          setSnackbarMessage(
-            action.payload.message || "Phone number is not available"
-          );
+          setSnackbarMessage(error.message);
           setOpenSnackbar(true);
         }
       } else {
-        setSnackbarMessage(error.message || "An error occurred");
+
+        setSnackbarMessage(error.message);
         setOpenSnackbar(true);
       }
-    } catch (err) {
-      setSnackbarMessage("An unexpected error occurred");
+    } catch (error) {
+
+      setSnackbarMessage("server error");
       setOpenSnackbar(true);
     }
   };
@@ -125,6 +124,15 @@ const Login = () => {
           Login
         </Button>
       </Box>
+      <Snackbar
+      open={openSnackbar}
+      autoHideDuration={6000}
+      onClose={() => setOpenSnackbar(false)}
+    >
+      <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
     </Container>
   );
 };

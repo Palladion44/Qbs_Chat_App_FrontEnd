@@ -49,7 +49,7 @@ import '@fontsource/poppins/500.css';
     
     const myIP = process.env.MY_IP;
     const baseUrl=process.env.REACT_APP_BASE_URL;
-    console.log(baseUrl)
+    // console.log(baseUrl)
   const dispatch = useDispatch();
   const socketRef = useRef();
   
@@ -87,19 +87,7 @@ import '@fontsource/poppins/500.css';
   const [filterSelectedx,setFilterSelectedx]=useState(filterSelected);
 
 
-//     console.log(myIP)
-    console.log(selectedContact)
-  useEffect(() => {
-    setFilterSelectedx(filterSelected)
-  },[])
-// if(filterSelected){
-//   setSingleContactData(filterSelected)
-// console.log(singlecontactData)
-// }
 
-useEffect(() => {
-  console.log("...............................")
-},[filterSelectedx])
 
     useEffect(() => {
 
@@ -130,49 +118,60 @@ useEffect(() => {
         const userIds = allUsers.map((user) => user._id);
     
         userIds.forEach((userId) => {
-          dispatch(setConversationId(userId));
+          // Join the room for each userId
           socketRef.current.emit("joinRoom", userId);
     
+          // Function to handle receiving a message
           const handleReceiveMessage = (newMessage) => {
-            setMessages((prevMessages) => ({
-              ...prevMessages,
-              [userId]: [...(prevMessages[userId] || []), newMessage],
-            }));
+            // Log the new message for debugging
+            if (newMessage.conversationId === userId) {
+              // console.log(`Received new message for user ${userId}:`, newMessage.message);
     
-            // Dispatch GetAllChats when a new message is received
-          };
-      socketRef.current.on(`receiveMessage-${userId}`, handleReceiveMessage);
-        // dispatch(GetAllChats({ token }));
-
-          dispatch(ReceiveMessages({ userId }))
-            .unwrap()
-            .then((filteredMessages) => {
+              // Set the last message for the user from the socket
               setMessages((prevMessages) => ({
                 ...prevMessages,
-                [userId]: filteredMessages,
+                [userId]: newMessage.message,
               }));
-            })
-            .catch((error) => {
-              console.error("Failed to load messages:", error);
-            });
+              dispatch(GetAllChats({ token }));
+
+              // Avoid fetching all chats unnecessarily (this might cause flickering)
+              // dispatch(GetAllChats({token}));  <-- REMOVE THIS
+            }
+          };
     
+          // Listen for messages from the server for this user
+          socketRef.current.on(`receiveMessage`, handleReceiveMessage);
+    
+          // Only set existing lastMessage if there's no message from the socket yet
+          setMessages((prevMessages) => ({
+            ...prevMessages,
+            [userId]: prevMessages[userId] || user.lastMessage, // Only update if no socket message
+          }));
+    
+          // Clean up event listeners when the component unmounts or updates
           return () => {
-            socketRef.current.off(`receiveMessage-${userId}`, handleReceiveMessage);
+            socketRef.current.off(`receiveMessage`, handleReceiveMessage);
             socketRef.current.emit("leaveRoom", userId);
           };
         });
       }
-    }, [ dispatch, token]);
+    }, [dispatch, allUsers, token]);
 
+// useEffect(() => {
+//               dispatch(GetAllChats({token}));
 
-    useEffect(() => {
-      const interval = setInterval(() => {
-          dispatch(GetAllChats({ token }));
-      }, 1000); // Dispatches every 1000ms (1 second)
+// }, [messages])
 
-      // Cleanup the interval on component unmount
-      return () => clearInterval(interval);
-  }, [dispatch, token]); // Dependencies include dispatch and token
+// emit listeners
+useEffect(() => {
+  const interval = setInterval(() => {
+    dispatch(GetAllChats({ token }));
+  }, 1000); // Dispatches every 1000ms (1 second)
+  
+  // Cleanup the interval on component unmount
+  return () => clearInterval(interval);
+}, [dispatch, token]); // Dependencies include dispatch and token
+// emit listeners
 
 
     const handleChange = (event) => {
@@ -190,7 +189,7 @@ useEffect(() => {
     const handleChatClick = (user) => {
       dispatch(setSelectedContact(user));
 
-      console.log(user)
+      // console.log(user)
       setFilterSelectedx(null);
       setIsContactsOpen(false);
     };
@@ -214,11 +213,7 @@ useEffect(() => {
       setIsContactsOpen(false);
     };
 
-    useEffect(() => {
-      
-      console.log(messages)
-      console.log(allUsers)
-    }, [messages])
+
 
     const formatTimestamp = (timestamp) => {
       const date = new Date(timestamp);
@@ -269,30 +264,8 @@ useEffect(() => {
 
 
   };
-  // const [currentChat, setCurrentChat] = useState();
   const lastUpdatedByRef = useRef(null);
 
-//   useEffect(() => {
-//     console.log('selectedChat:', selectedChat);
-//     console.log('filterSelected:', filterSelected);
-//     console.log('lastUpdatedByRef:', lastUpdatedByRef.current);
-//     // if(selectedChat){
-//     //   setCurrentChat(selectedChat);
-//     //   dispatch(setSelectedContact)
-//     // }
-  
-//     if (selectedChat) {
-//       // Set currentChat to selectedChat if available
-//       setCurrentChat(selectedChat);
-//     } else if (filterSelected) {
-//       // Only set currentChat to filterSelected if it hasn't been set by selectedChat
-//       if (lastUpdatedByRef.current !== 'selectedChat') {
-//         setCurrentChat(filterSelected);
-//       }
-//     }
-//   },
-//   [selectedChat, filterSelectedx]
-// );
 
 useEffect(() => {
 setCurrentChat(selectedContact)
@@ -303,245 +276,245 @@ setCurrentChat(selectedContact)
   
   // Add another useEffect to debug ref changes
   useEffect(() => {
-    console.log('Last updated by ref:', lastUpdatedByRef.current);
+    // console.log('Last updated by ref:', lastUpdatedByRef.current);
   }, [selectedChat, filterSelected]);
-    return (
-      <Container
-        disableGutters
-        maxWidth={false}
+
+
+  return (
+    <Container
+      disableGutters
+      maxWidth={false}
+      sx={{
+        display: "flex",
+        width: "100%",
+        height: "100vh",
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <Box
         sx={{
+          width: "27%",
           display: "flex",
-          width: "100%",
-          height: "100vh",
-          backgroundColor: "#f5f5f5",
+          flexDirection: "column",
+          backgroundColor: "white",
+          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
+        {/* Header */}
         <Box
           sx={{
-            width: "27%",
+            padding: 2,
             display: "flex",
-            flexDirection: "column",
-            backgroundColor: "white",
-            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+            alignItems: "center",
+            backgroundColor: "f7f7fc",
+            borderBottom: "1px solid #eee",
           }}
         >
-          {/* Header */}
-          <Box
-            sx={{
-              padding: 2,
-              display: "flex",
-              alignItems: "center",
-              backgroundColor:"f7f7fc",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            <Avatar
-             src={user?.user?.profile_url}
-             alt="my-image"
-              onClick={handleUser}/>
-            
-            <Typography sx={{ marginLeft: "100px" }}>
-              {console.log("The username is" + username)}
-            </Typography>
-
-            <Box sx={{ marginLeft: "auto" }}>
-              <GroupOutlinedIcon onClick={handleContact} />
-              <QuestionAnswerOutlinedIcon sx={{ marginLeft: 1 }} />
-              <PlaylistAddCheckOutlinedIcon sx={{ marginLeft: 1 }} />
-              <MoreVertOutlinedIcon sx={{ marginLeft: 1 }} />
-            </Box>
+          <Avatar src={user?.user?.profile_url} alt="my-image" onClick={handleUser} />
+  
+          <Typography sx={{ marginLeft: "100px" }}>
+            {/* {console.log("The username is" + username)} */}
+          </Typography>
+  
+          <Box sx={{ marginLeft: "auto" }}>
+            <GroupOutlinedIcon onClick={handleContact} />
+            <QuestionAnswerOutlinedIcon sx={{ marginLeft: 1 }} />
+            <PlaylistAddCheckOutlinedIcon sx={{ marginLeft: 1 }} />
+            <MoreVertOutlinedIcon sx={{ marginLeft: 1 }} />
           </Box>
-
-          {/* Search Bar */}
-          <Box sx={{ padding: 2 }}>
-      <FormControl fullWidth>
-      <TextField 
-  size="small"
-  placeholder="Search"
-  variant="filled"
-  fullWidth
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  InputProps={{
-    disableUnderline: true, // Removes the underline
-    startAdornment: (
-      <InputAdornment position="start" sx={{ padding: 0 }}>
-        <SearchIcon sx={{ color: "#ADB5BD", marginBottom: 2 }} />
-      </InputAdornment>
-    ),
-    endAdornment: (
-      <InputAdornment position="end" sx={{ padding: 0 }}>
-        {searchQuery && (
-          <IconButton onClick={handleClear} edge="end">
-            <ClearIcon sx={{ color: "#ADB5BD" }} />
-          </IconButton>
-        )}
-      </InputAdornment>
-    ),
-  }}
-  sx={{
-    '.MuiFilledInput-root': {
-      paddingTop: 1, // Adjust padding above the input
-      paddingBottom: 1,
-      backgroundColor: "#F7F7FC",
-      borderRadius: '10px', // Add borderRadius to round the corners
-    },
-    '.MuiFilledInput-input': {
-      paddingTop: 0, // Adjust padding above the placeholder
-      paddingBottom: 0,
-    },
-  }}
-/>
-      </FormControl>
-    </Box>
-     {/* Filter Buttons */}
-     <Box sx={{ paddingBottom: 1, display: 'flex', justifyContent: 'left' }}>
-  <Button
-    sx={{
-      backgroundColor: selectedFilter === "All" ? "#1F487C" : "transparent", 
-      borderColor: selectedFilter === "All" ? "transparent" : "#1F487C", 
-      color: selectedFilter === "All" ? "white" : "#1F487C", 
-      boxShadow: "none",
-      borderRadius: "30px",
-      minWidth: "66px", // Ensure both buttons have the same min width
-      height: "27px",
-      fontWeight: "400",
-      fontFamily: "Poppins",
-      fontSize: "14px",
-      textTransform: "capitalize", // Makes text consistent
-      marginLeft: "10px",
-      padding: '10px',
-    }}
-    variant={selectedFilter === "All" ? "contained" : "outlined"}
-    onClick={() => handleFilterChange("All")}
-  >
-    All
-  </Button>
-  <Button
-    sx={{
-      backgroundColor: selectedFilter === "Groups" ? "#1F487C" : "transparent", 
-      borderColor: selectedFilter === "Groups" ? "transparent" : "#1F487C", 
-      color: selectedFilter === "Groups" ? "white" : "#1F487C", 
-      boxShadow: "none",
-      borderRadius: "30px",
-      minWidth: "66px", // Ensure both buttons have the same min width
-      height: "27px",
-      fontWeight: "400",
-      fontFamily: "Poppins",
-      fontSize: "14px",
-      textTransform: "capitalize", 
-      marginLeft: "10px",
-      padding: '10px',
-    }}
-    variant={selectedFilter === "Groups" ? "contained" : "outlined"}
-    onClick={() => handleFilterChange("Groups")}
-  >
-    Group
-  </Button>
-</Box>
-
-          {/* Chat List */}
-          <Box sx={{ overflowY: "auto" }} >
-          {
-  Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-    filteredUsers.map((user, index) => (
-      <Box
-        key={user._id}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          padding: 2,
-          borderBottom: "1px solid #eee",
-          backgroundColor: currentChat && currentChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
-          cursor: "pointer",
-          "&:hover": {
-            backgroundColor: "#f9f9f9",
-          },
-        }}
-        onClick={() => handleChatClick(user)}
-      >
-        <Avatar src={user?.groupImage || user?.participants[0]?.profile_url} />
-        <Box sx={{ marginLeft: 2, width: "85%" }}>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-              width: "100%", // Default max-width
-              "@media (max-width: 1200px)": {
-                maxWidth: "80%", // Reduce the visible text on medium screens
-              },
-              "@media (max-width: 800px)": {
-                maxWidth: "60%", // Further reduce the visible text on smaller screens
-              },
-              "@media (max-width: 600px)": {
-                maxWidth: "40%", // Significantly reduce the visible text on very small screens
-              },
-            }}
-          >
-            <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
-              {user.groupName || user.participants[0]?.name}
-            </span>
-            <Typography
-              variant="body2"
-              component="span"
-              sx={{
-                fontSize: "0.8rem", // Smaller font size for the date
-                whiteSpace: "nowrap", // Prevent date from wrapping
-                marginLeft: "8px", // Add some space between name and date
+        </Box>
+  
+        {/* Search Bar */}
+        <Box sx={{ padding: 2 }}>
+          <FormControl fullWidth>
+            <TextField
+              size="small"
+              placeholder="Search"
+              variant="filled"
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                disableUnderline: true, // Removes the underline
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ padding: 0 }}>
+                    <SearchIcon sx={{ color: "#ADB5BD", marginBottom: 2 }} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end" sx={{ padding: 0 }}>
+                    {searchQuery && (
+                      <IconButton onClick={handleClear} edge="end">
+                        <ClearIcon sx={{ color: "#ADB5BD" }} />
+                      </IconButton>
+                    )}
+                  </InputAdornment>
+                ),
               }}
-            >
-              {user.lastMessage?.timestamp
-                ? formatTimestamp(user.lastMessage.timestamp)
-                : ""}
-            </Typography>
-          </Typography>
-          <Typography
-            variant="body2"
+              sx={{
+                '.MuiFilledInput-root': {
+                  paddingTop: 1, // Adjust padding above the input
+                  paddingBottom: 1,
+                  backgroundColor: "#F7F7FC",
+                  borderRadius: '10px', // Add borderRadius to round the corners
+                },
+                '.MuiFilledInput-input': {
+                  paddingTop: 0, // Adjust padding above the placeholder
+                  paddingBottom: 0,
+                },
+              }}
+            />
+          </FormControl>
+        </Box>
+  
+        {/* Filter Buttons */}
+        <Box sx={{ paddingBottom: 1, display: 'flex', justifyContent: 'left' }}>
+          <Button
             sx={{
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-              maxWidth: "100%", // Default max-width
-              "@media (max-width: 1200px)": {
-                maxWidth: "80%", // Reduce the visible text on medium screens
-              },
-              "@media (max-width: 800px)": {
-                maxWidth: "60%", // Further reduce the visible text on smaller screens
-              },
-              "@media (max-width: 600px)": {
-                maxWidth: "40%", // Significantly reduce the visible text on very small screens
-              },
+              backgroundColor: selectedFilter === "All" ? "#1F487C" : "transparent",
+              borderColor: selectedFilter === "All" ? "transparent" : "#1F487C",
+              color: selectedFilter === "All" ? "white" : "#1F487C",
+              boxShadow: "none",
+              borderRadius: "30px",
+              minWidth: "66px",
+              height: "27px",
+              fontWeight: "400",
+              fontFamily: "Poppins",
+              fontSize: "14px",
+              textTransform: "capitalize",
+              marginLeft: "10px",
+              padding: '10px',
             }}
-            color="textSecondary"
+            variant={selectedFilter === "All" ? "contained" : "outlined"}
+            onClick={() => handleFilterChange("All")}
           >
-            {user.lastMessage?.message || "No message yet"}
-          </Typography>
+            All
+          </Button>
+          <Button
+            sx={{
+              backgroundColor: selectedFilter === "Groups" ? "#1F487C" : "transparent",
+              borderColor: selectedFilter === "Groups" ? "transparent" : "#1F487C",
+              color: selectedFilter === "Groups" ? "white" : "#1F487C",
+              boxShadow: "none",
+              borderRadius: "30px",
+              minWidth: "66px",
+              height: "27px",
+              fontWeight: "400",
+              fontFamily: "Poppins",
+              fontSize: "14px",
+              textTransform: "capitalize",
+              marginLeft: "10px",
+              padding: '10px',
+            }}
+            variant={selectedFilter === "Groups" ? "contained" : "outlined"}
+            onClick={() => handleFilterChange("Groups")}
+          >
+            Group
+          </Button>
+        </Box>
+  
+        {/* Chat List */}
+        <Box sx={{ overflowY: "auto" }}>
+          {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+            filteredUsers.map((user, index) => {
+              // Check if a real-time message from the socket exists
+        
+              const lastMessageTimestamp = messages[user._id]?.timestamp || user.lastMessage?.timestamp;
+            
+              return (
+                <Box
+                  key={user._id}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: 2,
+                    borderBottom: "1px solid #eee",
+                    backgroundColor: currentChat && currentChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#f9f9f9",
+                    },
+                  }}
+                  onClick={() => handleChatClick(user)}
+                >
+                  <Avatar src={user?.groupImage || user?.participants[0]?.profile_url} />
+                  <Box sx={{ marginLeft: 2, width: "85%" }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        width: "100%", // Default max-width
+                        "@media (max-width: 1200px)": {
+                          maxWidth: "80%", // Reduce the visible text on medium screens
+                        },
+                        "@media (max-width: 800px)": {
+                          maxWidth: "60%", // Further reduce the visible text on smaller screens
+                        },
+                        "@media (max-width: 600px)": {
+                          maxWidth: "40%", // Significantly reduce the visible text on very small screens
+                        },
+                      }}
+                    >
+                      <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
+                        {user.groupName || user.participants[0]?.name}
+                      </span>
+                      <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{
+                          fontSize: "0.8rem", // Smaller font size for the date
+                          whiteSpace: "nowrap", // Prevent date from wrapping
+                          marginLeft: "8px", // Add some space between name and date
+                        }}
+                      >
+                        {lastMessageTimestamp ? formatTimestamp(lastMessageTimestamp) : ""}
+                      </Typography>
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        maxWidth: "100%", // Default max-width
+                        "@media (max-width: 1200px)": {
+                          maxWidth: "80%", // Reduce the visible text on medium screens
+                        },
+                        "@media (max-width: 800px)": {
+                          maxWidth: "60%", // Further reduce the visible text on smaller screens
+                        },
+                        "@media (max-width: 600px)": {
+                          maxWidth: "40%", // Significantly reduce the visible text on very small screens
+                        },
+                      }}
+                      color="textSecondary"
+                    >
+                                      {messages[user._id]|| user.lastMessage?.message|| "No message yet"}
+
+                    </Typography>
+                  </Box>
+                </Box>
+              );
+            })
+          ) : null}
         </Box>
       </Box>
-    ))
-  ) : null
-}
-
-          </Box>
-        </Box>
-
-        {/* Main Content Area */}
-        {currentChat ? (
-    <PersonalChat
-        conversationId={currentChat._id}
-        name={currentChat.participants[0]?.name}
-        profileimage={currentChat.participants[0]?.profile_url}
-        GroupName={currentChat.groupName}
-        GroupProfileImage={currentChat.groupImage}
-    />
-)
-        
-      :
+  
+      {/* Main Content Area */}
+      {currentChat ? (
+        <PersonalChat
+          conversationId={currentChat._id}
+          name={currentChat.participants[0]?.name}
+          profileimage={currentChat.participants[0]?.profile_url}
+          GroupName={currentChat.groupName}
+          GroupProfileImage={currentChat.groupImage}
+        />
+      ) : (
         <Box
           sx={{
             width: "70%",
@@ -551,47 +524,34 @@ setCurrentChat(selectedContact)
             position: "relative",
           }}
         >
-          <img
-            src={backimage}
-            alt="Background"
-            style={{ width: "100%", height: "100vh" }}
-          />
-          <img
-            src={over}
-            alt="Centered"
-            style={{ position: "absolute", width: "60%", height: "auto" }}
-          />
-        </Box>}
-
-        {/* Profile Drawer */}
-        <Drawer
-          anchor="left"
-          open={isProfileOpen}
-          onClose={handleProfileClose}
-          ModalProps={{ keepMounted: true }}
-          sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
-        >
-          <UserProfile profile={user?.user?.profile_url} name={user?.user?.name} onClose={handleProfileClose} />
-        </Drawer>
-
-        {/* Contacts Drawer */}
-        <Drawer
-          anchor="left"
-          open={isContactsOpen}
-          onClose={handleCloseContacts}
-          ModalProps={{ keepMounted: true }}
-          sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
-        >
-                {isContactsOpen && <ContactsPage  onClose={handleCloseContacts} />}
-
-        </Drawer>
-        
-      </Container>
+          <img src={backimage} alt="Background" style={{ width: "100%", height: "100vh" }} />
+          <img src={over} alt="Centered" style={{ position: "absolute", width: "60%", height: "auto" }} />
+        </Box>
+      )}
   
+      {/* Profile Drawer */}
+      <Drawer
+        anchor="left"
+        open={isProfileOpen}
+        onClose={handleProfileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
+      >
+        <UserProfile profile={user?.user?.profile_url} name={user?.user?.name} onClose={handleProfileClose} />
+      </Drawer>
   
-
-  
-    );
-  };
+      {/* Contacts Drawer */}
+      <Drawer
+        anchor="left"
+        open={isContactsOpen}
+        onClose={handleCloseContacts}
+        ModalProps={{ keepMounted: true }}
+        sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
+      >
+        {isContactsOpen && <ContactsPage onClose={handleCloseContacts} />}
+      </Drawer>
+    </Container>
+  );
+    };
 
   export default AllChats;

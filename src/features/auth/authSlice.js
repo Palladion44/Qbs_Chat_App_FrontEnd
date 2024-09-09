@@ -99,6 +99,7 @@ export const SendReceiverId = createAsyncThunk(
           },
         }
       );
+
       return response.data; // This response contains the _id you need
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -176,7 +177,7 @@ export const passwordcheck = createAsyncThunk(
         "http://localhost:4000/api/auth/login",
         { phone_number, password }
       );
-
+      
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -192,6 +193,7 @@ export const login = createAsyncThunk(
         "http://localhost:4000/api/auth/validate-at-login",
         { phone_number }
       );
+      console.log(response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -271,6 +273,16 @@ const authSlice = createSlice({
     },
     setSelectedContact(state, action) {
       state.selectedContact = action.payload;
+    },
+    updateLastMessage: (state, action) => {
+      const { conversationId, message,timestamp } = action.payload;
+
+      // Find the user with the matching conversationId and update their lastMessage
+      const user = state.allUsers.find((user) => user._id === conversationId);
+      if (user) {
+        user.lastMessage = message;
+        user.timestamp = timestamp;
+      }
     },
     // SetparticipantId(state, action) {
     //   state.participantId = action.payload;
@@ -359,7 +371,7 @@ const authSlice = createSlice({
       })
       .addCase(userDetails.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // state.registrationMessage = action.payload.message;
+        state.registrationMessage = action.payload.message;
       })
       .addCase(userDetails.rejected, (state, action) => {
         state.status = "failed";
@@ -452,7 +464,8 @@ export const {
   addToChatList,
   setConversationId,
   SetUserId,
-  setSelectedContact
+  setSelectedContact,
+  updateLastMessage
 } = authSlice.actions;
 
 export default authSlice.reducer;

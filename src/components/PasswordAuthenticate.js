@@ -40,14 +40,14 @@ const PasswordAuthenticate = () => {
   const handleContinue = async () => {
     try {
       const action = await dispatch(passwordcheck({ phone_number, password }));
-      console.log("Dispatched passwordcheck action", action);
+      // console.log("Dispatched passwordcheck action", action);
       if (passwordcheck.fulfilled.match(action)) {
         if (action.payload) {
           alert("I am here");
-          console.log(
-            "The token value from action.payload is: ",
-            action.payload.token
-          );
+          // console.log(
+          //   "The token value from action.payload is: ",
+          //   action.payload.token
+          // );
           
           dispatch(setStep("allchats"));
           navigate("/AllChats");

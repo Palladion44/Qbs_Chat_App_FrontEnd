@@ -53,8 +53,11 @@
    .form-control {
     padding-left: 60px !important;
     border-radius: 5px !important;
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
     border: none !important;
+    width:200% !important;
   }
   .flag{
-
+    width: 100%;
   }

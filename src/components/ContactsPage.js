@@ -48,8 +48,10 @@ const handleChatClick = async (contact) => {
 
     // Dispatch SendReceiverId action and wait for it to complete
     const sendReceiverAction = await dispatch(SendReceiverId({ token: localStorage.getItem("token"), participantId }));
+    dispatch(GetAllChats({ token }));
 
-    console.log("SendReceiverId action result:", sendReceiverAction);
+
+    // console.log("SendReceiverId action result:", sendReceiverAction);
 
     // Check if SendReceiverId was fulfilled successfully
     if (SendReceiverId.fulfilled.match(sendReceiverAction)) {
@@ -76,12 +78,6 @@ const handleChatClick = async (contact) => {
     setOpenSnackbar(true);
   }
 };
-
-  // useEffect(() => {
-  //   if (selectedContactsUser) {
-  //     console.log("Updated selectedContactsUser:", selectedContactsUser);
-  //   }
-  // }, [selectedContactsUser]);
 
 
   // Filter users based on the search query

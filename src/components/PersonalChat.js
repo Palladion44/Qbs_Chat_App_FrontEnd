@@ -55,8 +55,8 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
     
         // Listen for incoming messages
         socketRef.current.on("receiveMessage", (newMessage) => {
-          console.log("newMessage data: ", newMessage);
-          console.log(newMessage);
+          // console.log("newMessage data: ", newMessage);
+          // console.log(newMessage);
     
           // Check if the message belongs to the current conversation
           if (newMessage.conversationId === conversationId) {
@@ -107,7 +107,7 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
         },
       };
   
-      console.log("New message to send:", newMessage); // Debugging log
+      // console.log("New message to send:", newMessage); // Debugging log
   
       // Clear the input field
       setMessage("");
@@ -130,14 +130,14 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
         },
       });
   
-      console.log("Message sent via socket:", {
-        conversationId: conversation_id,
-        message: message,
-        sender: {
-          _id: user_id,
-          name: username || "Unknown",
-        },
-      });
+      // console.log("Message sent via socket:", {
+      //   conversationId: conversation_id,
+      //   message: message,
+      //   sender: {
+      //     _id: user_id,
+      //     name: username || "Unknown",
+      //   },
+      // });
     } else {
       console.error("Failed to send message: Missing conversation ID or message");
     }
@@ -201,7 +201,7 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
 
 
   
-{console.log("tahir shapater developer",message)}
+{/* {console.log("tahir shapater developer",message)} */}
   <Typography
     variant="body1"
     sx={{
