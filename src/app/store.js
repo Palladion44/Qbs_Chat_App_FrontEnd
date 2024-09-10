@@ -7,7 +7,7 @@ import authReducer from "../features/auth/authSlice";
 const persistConfig = {
   key: "root", // key for localStorage
   storage,
-  blacklist:['selectedContact'] // storage method (localStorage in this case)
+  blacklist:['selectedContact','error'] // storage method (localStorage in this case)
 };
 
 // Wrap your authReducer with persistReducer

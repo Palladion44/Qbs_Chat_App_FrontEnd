@@ -12,8 +12,7 @@
     AppBar,
     Toolbar,Button
   } from "@mui/material";
-  import { useNavigate } from "react-router-dom";
-  import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+  import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';  import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
   import QuestionAnswerOutlinedIcon from "@mui/icons-material/QuestionAnswerOutlined";
   import PlaylistAddCheckOutlinedIcon from "@mui/icons-material/PlaylistAddCheckOutlined";
   import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
@@ -40,6 +39,7 @@
   import '@fontsource/poppins/600.css'; // Import the Poppins font
   import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
+import CreateGroup from "./CreateGroup";
   // import { GetAllChats,ReceiveMessages } from '../features/auth/actions';
   // import { setConversationId } from '../features/auth/reducers';
   const AllChats = () => {
@@ -67,6 +67,8 @@ import '@fontsource/poppins/500.css';
     const [searchQuery, setSearchQuery] = useState("");
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isContactsOpen, setIsContactsOpen] = useState(false);
+    const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
+
 
     const localtoken = localStorage.getItem("token");
 
@@ -172,6 +174,12 @@ useEffect(() => {
 
     const handleContact = () => {
       setIsContactsOpen(true);
+    };
+    const handleAddGroupOpen = ()=>{
+      setIsAddGroupOpen(true)
+    }
+    const handleAddGroupClose = () => {
+      setIsAddGroupOpen(false);
     };
 
     const handleProfileClose = () => {
@@ -281,7 +289,7 @@ setCurrentChat(selectedContact)
   
           <Box sx={{ marginLeft: "auto" }}>
             <GroupOutlinedIcon onClick={handleContact} />
-            <QuestionAnswerOutlinedIcon sx={{ marginLeft: 1 }} />
+            <AddCommentOutlinedIcon onClick={handleAddGroupOpen} sx={{marginLeft:1}}/>
             <PlaylistAddCheckOutlinedIcon sx={{ marginLeft: 1 }} />
             <MoreVertOutlinedIcon sx={{ marginLeft: 1 }} />
           </Box>
@@ -512,6 +520,17 @@ setCurrentChat(selectedContact)
         sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
       >
         {isContactsOpen && <ContactsPage onClose={handleCloseContacts} />}
+      </Drawer>
+
+      {/* New Group Drawer*/}
+      <Drawer
+        anchor="left"
+        open={isAddGroupOpen}
+        onClose={handleAddGroupClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{ width: "27%", "& .MuiDrawer-paper": { width: "27%" } }}
+      >
+        {isAddGroupOpen && <CreateGroup onClose={handleAddGroupClose} />}
       </Drawer>
     </Container>
   );

@@ -24,7 +24,7 @@ const Login = () => {
     // console.log(value);
   };
 useEffect(() => {
-if(error !==null )
+if(error !== undefined )
   setSnackbarMessage(error?.message);
 setOpenSnackbar(true);
 }, [error])
