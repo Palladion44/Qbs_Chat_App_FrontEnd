@@ -76,75 +76,55 @@ import '@fontsource/poppins/500.css';
   const filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filterSelected1;
   const [filterSelectedx,setFilterSelectedx]=useState(filterSelected);
 
+  const roomsJoined = useRef(false); // Ref to track if rooms have been joined
 
+  useEffect(() => {
+    if (token) {
+      dispatch(GetAllChats({ token }));
+    }
 
+    socketRef.current = io(`${baseUrl}`, {
+      auth: { token },
+    });
 
-    useEffect(() => {
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, [token]);
 
+  useEffect(() => {
+    if (allUsers.length > 0 && !roomsJoined.current) {
+      const userIds = allUsers.map((user) => user._id);
 
-      if (token) {
-        dispatch(GetAllChats({ token }));
-      }
+      userIds.forEach((userId) => {
+        socketRef.current.emit("joinRoom", userId);
 
-      const resthandler = (res) => {
-        if(res === 200){
-          dispatch(GetAllChats({ token: localtoken }))
-        }
-      };
-    
+        const handleReceiveMessage = (newMessage) => {
+          if (newMessage.conversationId === userId) {
+            setMessages((prevMessages) => ({
+              ...prevMessages,
+              [userId]: newMessage.message,
+            }));
+          }
+        };
 
-      socketRef.current = io(`${baseUrl}`, {
-      // socketRef.current = io(`http://localhost:4000`, {
-        auth: { token },
+        socketRef.current.on("receiveMessage", handleReceiveMessage);
+
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [userId]: prevMessages[userId] || user.lastMessage,
+        }));
+
+        // Clean up socket listeners and rooms when component unmounts
+        return () => {
+          socketRef.current.off("receiveMessage", handleReceiveMessage);
+          socketRef.current.emit("leaveRoom", userId);
+        };
       });
 
-      return () => {
-        socketRef.current.disconnect();
-      };
-    }, [token]);
-
-    useEffect(() => {
-      if (allUsers.length > 0) {
-        const userIds = allUsers.map((user) => user._id);
-    
-        userIds.forEach((userId) => {
-          // Join the room for each userId
-          socketRef.current.emit("joinRoom", userId);
-    
-          // Function to handle receiving a message
-          const handleReceiveMessage = (newMessage) => {
-            // Log the new message for debugging
-            if (newMessage.conversationId === userId) {
-              // console.log(`Received new message for user ${userId}:`, newMessage.message);
-    
-              // Set the last message for the user from the socket
-              setMessages((prevMessages) => ({
-                ...prevMessages,
-                [userId]: newMessage.message,
-              }));
-
-              // Avoid fetching all chats unnecessarily (this might cause flickering)
-              // dispatch(GetAllChats({token}));  <-- REMOVE THIS
-            }
-          };
-    
-          // Listen for messages from the server for this user
-          socketRef.current.on(`receiveMessage`, handleReceiveMessage);
-    
-          // Only set existing lastMessage if there's no message from the socket yet
-          setMessages((prevMessages) => ({
-            ...prevMessages,
-            [userId]: prevMessages[userId] || user.lastMessage, // Only update if no socket message
-          }));
-    
-          // Clean up event listeners when the component unmounts or updates
-          return () => {
-            socketRef.current.off(`receiveMessage`, handleReceiveMessage);
-            socketRef.current.emit("leaveRoom", userId);
-          };
-        });
-      }
-    }, []);
+      roomsJoined.current = true; // Set the flag to true after joining rooms
+    }
+  }, [allUsers, token]); // This 
 
 // useEffect(() => {
 //               dispatch(GetAllChats({token}));

@@ -24,7 +24,7 @@ const Login = () => {
     // console.log(value);
   };
 useEffect(() => {
-if(error )
+if(error !==null )
   setSnackbarMessage(error?.message);
 setOpenSnackbar(true);
 }, [error])
@@ -134,7 +134,7 @@ setOpenSnackbar(true);
       </Box>
       <Snackbar
       open={openSnackbar}
-      autoHideDuration={6000}
+      autoHideDuration={11000}
       onClose={() => setOpenSnackbar(false)}
     >
       <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
