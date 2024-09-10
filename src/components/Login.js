@@ -12,7 +12,7 @@ import { Snackbar, Alert } from '@mui/material';
 import './InputPhoneStyling.css'; // Import your global CSS file
 
 const Login = () => {
-  const { error } = useSelector((state) => state.auth);
+  const { error } = useSelector((state) => state?.auth);
   const [phone_number, setPhone] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,6 +23,12 @@ const Login = () => {
     setPhone(value);
     // console.log(value);
   };
+useEffect(() => {
+if(error )
+  setSnackbarMessage(error?.message);
+setOpenSnackbar(true);
+}, [error])
+
 
   const handleLogin = async () => {
     try {
@@ -32,17 +38,14 @@ const Login = () => {
           dispatch(setPhoneNumber(phone_number)); // Save phone number in redux store
           navigate("/PasswordAuthenticate");
         } else {
-          setSnackbarMessage(error.message);
           setOpenSnackbar(true);
         }
       } else {
 
-        setSnackbarMessage(error.message);
         setOpenSnackbar(true);
       }
-    } catch (error) {
+    } catch (err) {
 
-      setSnackbarMessage("server error");
       setOpenSnackbar(true);
     }
   };
@@ -104,24 +107,29 @@ const Login = () => {
             value={phone_number}
             onChange={handlePhoneChange}
             inputClass="form-control" // Apply custom class if needed
+            buttonClass="custom-dropdown-button"
+
 
           />
         </Box>
         <Button
           variant="contained"
           sx={{
-            mt: 2,
+            textTransform:"capitalize",
+            mt: 5,
             backgroundColor: "#1F487C",
-            width: "14%",
+            width: "24%",
             borderRadius: "50px",
             height: "7%",
+            boxShadow:"none",
             "&:hover": {
               backgroundColor: "#1F487C",
+            boxShadow:"none",
             },
           }}
           onClick={handleLogin}
         >
-          Login
+          Continue
         </Button>
       </Box>
       <Snackbar

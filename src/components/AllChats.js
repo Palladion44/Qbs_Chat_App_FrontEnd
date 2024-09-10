@@ -23,10 +23,7 @@
   import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
   import backimage from "../assets/backimage.png";
   import over from "../assets/over.png";
-  import userAvatar from "../assets/Avatar.png";
-  import johnAvatar from "../assets/John.png";
-  import gohsAvatar from "../assets/Gohs.png";
-  import justinAvatar from "../assets/Justin.png";
+
   import UserProfile from "./UserProfile";
   import ContactsPage from "./ContactsPage";
   import { useState, useEffect,useRef } from "react";
@@ -62,9 +59,7 @@ import '@fontsource/poppins/500.css';
     const users = useSelector((state) => state.auth.users);
     const status = useSelector((state) => state.auth.status);
     const error = useSelector((state) => state.auth.error);
-    const conversation_id = useSelector((state) => state.auth.error);
     const selectedContact = useSelector((state) => state.auth.selectedContact);
-    const SelectedContact = useSelector((state) => state.auth.selectedContact);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState({})
     const [showClearIcon, setShowClearIcon] = useState("none");
@@ -72,14 +67,9 @@ import '@fontsource/poppins/500.css';
     const [searchQuery, setSearchQuery] = useState("");
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isContactsOpen, setIsContactsOpen] = useState(false);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const navigate = useNavigate();
-    const [forceRender, setForceRender] = useState(0);
-    const username = localStorage.getItem("username");
+
     const localtoken = localStorage.getItem("token");
-    const [singlecontactData,setSingleContactData] = useState();
-    const [selectedChat, setSelectedChat] = useState();
+
     const filterSelected1 = allUsers?.filter((user) =>
       user.participants.some((participant) => participant._id === selectedContact?._id)
   );
@@ -132,7 +122,6 @@ import '@fontsource/poppins/500.css';
                 ...prevMessages,
                 [userId]: newMessage.message,
               }));
-              dispatch(GetAllChats({ token }));
 
               // Avoid fetching all chats unnecessarily (this might cause flickering)
               // dispatch(GetAllChats({token}));  <-- REMOVE THIS
@@ -155,7 +144,7 @@ import '@fontsource/poppins/500.css';
           };
         });
       }
-    }, [dispatch, allUsers, token]);
+    }, []);
 
 // useEffect(() => {
 //               dispatch(GetAllChats({token}));
@@ -272,12 +261,6 @@ setCurrentChat(selectedContact)
 }, [selectedContact]);
 
 
-
-  
-  // Add another useEffect to debug ref changes
-  useEffect(() => {
-    // console.log('Last updated by ref:', lastUpdatedByRef.current);
-  }, [selectedChat, filterSelected]);
 
 
   return (

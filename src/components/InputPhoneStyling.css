@@ -53,11 +53,15 @@
    .form-control {
     padding-left: 60px !important;
     border-radius: 5px !important;
-    padding-top: 20px !important;
-    padding-bottom: 20px !important;
+    padding-top: 25px !important;
+    padding-bottom: 25px !important;
     border: none !important;
     width:200% !important;
   }
   .flag{
     width: 100%;
+  }
+  .custom-phone-input .flag {
+    width: 30px !important; /* Adjust the width to the size you want */
+    height: 20px !important; /* Adjust the height to the size you want */
   }
