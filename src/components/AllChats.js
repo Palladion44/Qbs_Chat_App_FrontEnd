@@ -133,16 +133,16 @@ import CreateGroup from "./CreateGroup";
 
 // }, [messages])
 
-// emit listeners
-useEffect(() => {
-  const interval = setInterval(() => {
-    dispatch(GetAllChats({ token }));
-  }, 1000); // Dispatches every 1000ms (1 second)
+// // emit listeners
+// useEffect(() => {
+//   const interval = setInterval(() => {
+//     dispatch(GetAllChats({ token }));
+//   }, 1000); // Dispatches every 1000ms (1 second)
   
-  // Cleanup the interval on component unmount
-  return () => clearInterval(interval);
-}, [dispatch, token]); // Dependencies include dispatch and token
-// emit listeners
+//   // Cleanup the interval on component unmount
+//   return () => clearInterval(interval);
+// }, [dispatch, token]); // Dependencies include dispatch and token
+// // emit listeners
 
 
     const handleChange = (event) => {

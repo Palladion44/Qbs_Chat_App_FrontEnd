@@ -8,6 +8,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Alert,
+  Snackbar
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import background from "../assets/background.jpg";
@@ -15,7 +17,7 @@ import centeredImage from "../assets/image_login.png";
 import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userDetails } from "../features/auth/authSlice"; // Import register
-
+import Avatar from "../assets/PlaceHolderForProfileImage.png"
 // import { userDetails } from '../features/auth/actions';
 import "@fontsource/poppins/700.css"; // Import the Poppins font
 import "@fontsource/poppins/600.css"; // Import the Poppins font
@@ -30,20 +32,16 @@ const RoleSelect = () => {
   const [image, setUploadedImg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRegister, setIsLoadingRegister] = useState(false);
-
   const [previewUrl, setPreviewUrl] = useState(null);
-
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const dispatch = useDispatch();
-  const { status, registrationMessage, error } = useSelector(
-    (state) => state.auth
-  );
 
-  const phone_number = useSelector((state) => state.auth.phone_number); // Get phone_number from state
-  const first_name = useSelector((state) => state.auth.first_name); // Get firstName from state
-  const last_name = useSelector((state) => state.auth.last_name); // Get lastName from state
-  const password = useSelector((state) => state.auth.password); // Get password from state
+  const dispatch = useDispatch();
+  const { status, registrationMessage, error } = useSelector((state) => state.auth);
+  const phone_number = useSelector((state) => state.auth.phone_number); 
+  const first_name = useSelector((state) => state.auth.first_name); 
+  const last_name = useSelector((state) => state.auth.last_name); 
+  const password = useSelector((state) => state.auth.password); 
 
   const formDataObj = {
     phone_number,
@@ -64,22 +62,33 @@ const RoleSelect = () => {
   formData.append("department", department);
   formData.append("role", role);
   formData.append("image", image);
-
-  const handleContinue = (e) => {
-    e.preventDefault();
-    setIsLoadingRegister(true);  // Set loading to true when the button is clicked
   
-    // Simulate an async action or actual dispatch
-    dispatch(userDetails({ formData, navigate }))
-      .finally(() => {
-        setIsLoadingRegister(false);  // Reset loading when done
-      });
+  useEffect(() => {
+    if (error) {
+      setSnackbarMessage(error.error);
+      console.log(error.error) // Display the error from the state in the snackbar
+      setOpenSnackbar(true);
+    }
+  }, [error]);
+  const handleContinue = async (e) => {
+    e.preventDefault();
+    setIsLoadingRegister(true);
+    
+    try {
+      // Simulate an async action or actual dispatch
+      await dispatch(userDetails({ formData, navigate }));
+    } catch (error) {
+      // Catch errors from the dispatch and display a relevant message in the snackbar
+      setOpenSnackbar(true);
+    } finally {
+      setIsLoadingRegister(false); // Reset loading when done
+    }
   };
 
   const handleDepartmentChange = (event) => {
     setDepartment(event.target.value);
   };
-
+  
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
@@ -87,27 +96,29 @@ const RoleSelect = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setIsLoading(true); // Start loading
-  
-      setUploadedImgx(file); // Assuming this is used elsewhere
-      setUploadedImg(file); // Assuming this is used elsewhere
-  
+      setIsLoading(true); 
+
+      setUploadedImgx(file);
+      setUploadedImg(file);
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result;
         if (result && typeof result === "string") {
-          setPreviewUrl(result); // Set the image URL to previewUrl
-          setIsLoading(false); // End loading
+          setPreviewUrl(result);
         } else {
           console.error("Invalid image data URL");
-          setPreviewUrl(null); // Handle invalid data URL
-          setIsLoading(false); // End loading even if there's an error
+          setPreviewUrl(null);
         }
+        setIsLoading(false); 
       };
       reader.readAsDataURL(file);
     }
   };
-  
+
+  // useEffect to handle global errors
+
+
 
   return (
     <Container
@@ -186,7 +197,7 @@ const RoleSelect = () => {
 ) : (
   <img
     alt="User Avatar"
-    src="/PlaceHolderForProfileImage.png"
+    src={Avatar}
     style={{ width: "150px", height: "150px",outline:"1px solid blue", borderRadius: "50%" }}
   />
 )}
@@ -309,6 +320,15 @@ const RoleSelect = () => {
 </Button>
         </Box>
       </Box>
+      <Snackbar
+      open={openSnackbar}
+      autoHideDuration={11000}
+      onClose={() => setOpenSnackbar(false)}
+    >
+      <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
     </Container>
   );
 };

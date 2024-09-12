@@ -19,7 +19,7 @@ import {Search} from "@mui/icons-material";
 import { GetUsers, SendReceiverId,setSelectedContact,GetAllChats } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-
+import ContactItem from "./ContactItem";
 const ContactsPage = ({ onClose,contact}) => {
   const dispatch = useDispatch();
 
@@ -85,14 +85,14 @@ const handleChatClick = async (contact) => {
     user?.name?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
 
-  const ContactItem = ({ contact }) => (
-    <ListItem onClick={() => handleChatClick(contact)}>
-      <ListItemAvatar>
-        <Avatar src={contact.profile_url} />
-      </ListItemAvatar>
-      <ListItemText primary={contact.name} secondary={contact.status} />
-    </ListItem>
-  );
+  // const ContactItem = ({ contact }) => (
+  //   <ListItem onClick={() => handleChatClick(contact)}>
+  //     <ListItemAvatar>
+  //       <Avatar src={contact.profile_url} />
+  //     </ListItemAvatar>
+  //     <ListItemText primary={contact.name} secondary={contact.status} />
+  //   </ListItem>
+  // );
   return (
       <>
 
@@ -128,7 +128,7 @@ const handleChatClick = async (contact) => {
       {Array.isArray(filteredUsers) && filteredUsers.length > 0 && (
         <List>
           {filteredUsers.map((user) => (
-            <ContactItem key={user._id} contact={user} />
+            <ContactItem key={user._id} contact={user} onClick={handleChatClick} />
           ))}
         </List>
       )}

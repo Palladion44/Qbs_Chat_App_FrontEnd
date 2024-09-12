@@ -1,6 +1,6 @@
-import React, { useState, useEffect} from "react";
-import { Box, Button, Container, Typography, TextField } from "@mui/material";
-import Avatar from "../assets/Avatar.png";
+import React, { useState, useEffect,useRef} from "react";
+import { Box, Button, Container, Typography, TextField,Snackbar,Alert } from "@mui/material";
+import Avatar from "../assets/DefaultProfileImage.png";
 import background from "../assets/background.jpg";
 import centeredImage from "../assets/image_login.png";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ const PasswordAuthenticate = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const isFirstRender = useRef(true); // Track the first render
 
 
   const handleClickShowPassword = () => {
@@ -36,6 +37,19 @@ const PasswordAuthenticate = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // Skip the first render
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (error !== undefined) {
+      setSnackbarMessage(error?.message);
+      setOpenSnackbar(true);
+    }
+  }, [error]);
+
 
   const handleContinue = async () => {
     try {
@@ -52,15 +66,12 @@ const PasswordAuthenticate = () => {
           dispatch(setStep("allchats"));
           navigate("/AllChats");
         } else {
-          setSnackbarMessage(action.payload.message || "Password is incorrect");
           setOpenSnackbar(true);
         }
       } else {
-        setSnackbarMessage(error.message || "An error occurred");
         setOpenSnackbar(true);
       }
     } catch (err) {
-      setSnackbarMessage("An unexpected error occurred");
       setOpenSnackbar(true);
     }
   };
@@ -212,6 +223,15 @@ const PasswordAuthenticate = () => {
 </button>
 
           </Box>
+          <Snackbar
+      open={openSnackbar}
+      autoHideDuration={11000}
+      onClose={() => setOpenSnackbar(false)}
+    >
+      <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
     </Container>
   );
 };

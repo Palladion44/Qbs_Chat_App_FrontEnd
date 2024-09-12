@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Box, Button, Container, Typography } from "@mui/material";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -14,21 +14,30 @@ import './InputPhoneStyling.css'; // Import your global CSS file
 const Login = () => {
   const { error } = useSelector((state) => state?.auth);
   const [phone_number, setPhone] = useState("");
+  const phoneNumber = useSelector((state) => state?.auth?.phone_number);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [snackbarMessage, setSnackbarMessage] = React.useState('');
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
+  const isFirstRender = useRef(true); // Track the first render
 
   const handlePhoneChange = (value) => {
     setPhone(value);
     // console.log(value);
   };
-useEffect(() => {
-if(error !== undefined )
-  setSnackbarMessage(error?.message);
-setOpenSnackbar(true);
-}, [error])
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // Skip the first render
+      isFirstRender.current = false;
+      return;
+    }
 
+    if (error !== undefined) {
+      setSnackbarMessage(error?.message);
+      setOpenSnackbar(true);
+    }
+  }, [error]);
 
   const handleLogin = async () => {
     try {

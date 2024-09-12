@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Container, Typography, Snackbar } from '@mui/material';
+import React, { useState, useEffect,useRef } from 'react';
+import { Box, Button, Container, Typography, Snackbar,Alert } from '@mui/material';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { useNavigate } from 'react-router-dom';
@@ -24,42 +24,45 @@ const Register = () => {
   const dispatch = useDispatch();
   const { status, registrationMessage, error } = useSelector((state) => state.auth);
   const { step } = useSelector((state) => state.auth);
+  const isFirstRender = useRef(true); // Track the first render
 
   const handlePhoneChange = (value) => {
     setPhone(value);
     console.log(value);
   };
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // Skip the first render
+      isFirstRender.current = false;
+      return;
+    }
 
+    if (error !== undefined) {
+      setSnackbarMessage(error?.message);
+      setOpenSnackbar(true);
+    }
+  }, [error]);
   const handleContinue = async () => {
     try {
       const action = await dispatch(register(phone_number));
       if (register.fulfilled.match(action)) {
-        alert("i am here")
+        // alert("i am here")
          console.log(action.payload)
         if (action.payload) {
-          alert("i am here")
+          // alert("i am here")
           dispatch(setPhoneNumber(phone_number)); // Save phone number in redux store
-          console.log(step);
+          // console.log(step);
           navigate('/Profile'); 
         } else {
-          setSnackbarMessage(action.payload.message || 'Phone number is not available');
           setOpenSnackbar(true);
         }
       } else {
-        setSnackbarMessage(error.message || 'An error occurred');
         setOpenSnackbar(true);
       }
     } catch (err) {
-      setSnackbarMessage('An unexpected error occurred');
       setOpenSnackbar(true);
     }
   };
-
-  // useEffect(() => {
-  //   if ( registrationMessage) {
-  //     navigate('/Profile');
-  //   }
-  // }, [status, registrationMessage, navigate]);
 
   return (
     <Container
@@ -140,11 +143,14 @@ const Register = () => {
           Continue
         </Button>
         <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
+      open={openSnackbar}
+      autoHideDuration={11000}
+      onClose={() => setOpenSnackbar(false)}
+    >
+      <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
       </Box>
     </Container>
   );

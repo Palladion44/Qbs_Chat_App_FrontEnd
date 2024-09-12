@@ -106,7 +106,28 @@ export const SendReceiverId = createAsyncThunk(
     }
   }
 );
+export const CreateUsersGroup = createAsyncThunk(
+  "auth/CreateUsersGroup", // Action type
+  async ({ token, formData }, { rejectWithValue }) => {
+    try {
+      // Make the POST request with the passed FormData
+      const response = await axios.post(
+        "http://localhost:4000/api/group-conversation", // API endpoint for creating a group
+        formData, // Directly pass FormData here
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Token authorization
+            // 'Content-Type': 'multipart/form-data' // This header is automatically set by axios for FormData
+          },
+        }
+      );
 
+      return response.data; // Return the response data if the request is successful
+    } catch (error) {
+      return rejectWithValue(error.response.data); // Handle any errors
+    }
+  }
+);
 // export const GetAllChats = createAsyncThunk(
 //   "auth/GetAllChats",
 //   async ({ resthandler, token }, { rejectWithValue }) => {
@@ -229,13 +250,7 @@ export const userDetails = createAsyncThunk(
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          // phone_number,
-          // first_name,
-          // last_name,
-          // password,
-          // department,
-          // role,
-          // image,
+
         }
       );
       navigate('/Login')
@@ -424,6 +439,22 @@ const authSlice = createSlice({
       .addCase(SendReceiverId.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+      })
+      // Pending case
+      .addCase(CreateUsersGroup.pending, (state) => {
+        state.isLoading = true;
+        state.error = null; // Reset any previous errors
+      })
+      // Fulfilled case
+      .addCase(CreateUsersGroup.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.group = action.payload; // Save the created group details
+        state.error = null; // Clear any previous errors
+      })
+      // Rejected case
+      .addCase(CreateUsersGroup.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to create group'; // Store the error message
       })
       .addCase(GetAllChats.fulfilled, (state, action) => {
         state.status = "succeeded";
