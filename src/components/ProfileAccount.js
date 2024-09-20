@@ -42,31 +42,36 @@
       setFirstNameError(false);
       setPasswordError(false);
       setConfirmPasswordError(false);
-  
+    
       // Validate required fields
       let hasError = false;
-      
+    
       if (!first_name.trim()) {
         setFirstNameError(true);
         hasError = true;
       }
-      
+    
       if (!password.trim()) {
         setPasswordError(true);
         hasError = true;
       }
-      
+    
       if (password !== confirmPassword) {
         setConfirmPasswordError(true);
         hasError = true;
       }
-  
+    
       if (hasError) return;
-  
+    
+      // Clean up first and last names
+      const cleanedFirstName = first_name.trim().replace(/\s+/g, ' ');
+      const cleanedLastName = last_name.trim().replace(/\s+/g, ' ');
+    
       // If all validations pass, dispatch the save_info action and navigate
-      dispatch(save_info({ first_name, last_name, password, confirmPassword }));
+      dispatch(save_info({ first_name: cleanedFirstName, last_name: cleanedLastName, password, confirmPassword }));
       navigate("/RoleSelect");
     };
+    
   
     const handleClickShowPassword = () => {
       setShowPassword(!showPassword);
@@ -146,7 +151,7 @@
               disableUnderline: true,
             }}
             value={first_name}
-            onChange={(e) => setFirstName(e.target.value.trim())}
+            onChange={(e) => setFirstName(e.target.value)}
             error={firstNameError} // Show error state
             helperText={firstNameError ? "First name is required" : ""} // Display helper text
             sx={{
@@ -183,7 +188,7 @@
             disableUnderline: true,
           }}
           value={last_name}
-          onChange={(e) => setLastName(e.target.value.trim())}
+          onChange={(e) => setLastName(e.target.value)}
           sx={{
             "& .MuiFilledInput-root": {
               backgroundColor: "#F7F7FC",

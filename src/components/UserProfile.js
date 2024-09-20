@@ -12,8 +12,8 @@ import {
 import userAvatar from "../assets/Avatar.png";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { useDispatch } from "react-redux";
-import {logout} from  "../features/auth/authSlice";
+import { useDispatch,useSelector } from "react-redux";
+import {logoutUser} from  "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = ({ onClose ,profile,name}) => {
@@ -30,10 +30,20 @@ const UserProfile = ({ onClose ,profile,name}) => {
   // Toggle the editing state
   const handleEditName = () => setIsEditingName(!isEditingName);
   const handleEditAbout = () => setIsEditingAbout(!isEditingAbout);
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/")
-};
+  const { logId } = useSelector((state) => state.auth);
+  const handleLogout = async () => {
+    try {
+      const resultAction = await dispatch(logoutUser(logId)); // Dispatch the logout action
+      if (logoutUser.fulfilled.match(resultAction)) {
+        navigate("/"); // Redirect to the login page
+      } else {
+        console.error("Logout failed:", resultAction.payload);
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   return (
     <Box
       sx={{

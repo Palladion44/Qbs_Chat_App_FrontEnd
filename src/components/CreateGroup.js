@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   AppBar,
@@ -15,7 +15,7 @@ import {
   Container,
   Box,
   Button,
-  InputAdornment,
+  InputAdornment,Alert
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -45,7 +45,7 @@ const CreateGroup = ({onClose}) => {
   const users = useSelector((state) => state.auth.users);
   const status = useSelector((state) => state.auth.status);
   const error = useSelector((state) => state.auth.error);
-
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [GroupName, setGroupName] = useState("");
   const [GroupNameError, setGroupNameError] = useState(false);
@@ -59,7 +59,21 @@ const CreateGroup = ({onClose}) => {
   const [isLoadingRegister, setIsLoadingRegister] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const[placeholderimgstring, setPlaceholderimgstring] = useState("THIS IS A PLACEHOLDER FOR GROUP IMAGE");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");  // Snackbar severity
+  const isFirstRender = useRef(true); // Track the first render
 
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // Skip the first render
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (error !== undefined) {
+      setSnackbarMessage(error?.message);
+      setOpenSnackbar(true);
+    }
+  }, [error]);
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -117,20 +131,48 @@ const CreateGroup = ({onClose}) => {
     setCurrentStep(1);
   };
 
+
   const handleCreate = () => {
     const formData = new FormData();
     formData.append("groupName", GroupName);
     formData.append("groupImage", image);
-  // Create an array of participant IDs
-  // Create an array of participant IDs
-  const participantIds = selectedContacts.map(contact => contact._id);
   
-  // Append participants array as JSON string
-  formData.append('participants', JSON.stringify(participantIds) ); // You can also handle the form submission here
-    dispatch(CreateUsersGroup({ token:localStorage.getItem("token"), formData }));
-
+    // Create an array of participant IDs
+    const participantIds = selectedContacts.map(contact => contact._id);
+    
+    // Append participants array as JSON string
+    formData.append('participants', JSON.stringify(participantIds));
+  
+    dispatch(CreateUsersGroup({
+      token: localStorage.getItem("token"),
+      formData
+    }))
+    .unwrap()  // Wait for CreateUsersGroup to be fulfilled
+    .then(() => {
+      // Show success message
+      setSnackbarMessage("Group chat created successfully!");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+  
+      // Dispatch GetAllChats and return the promise
+      return dispatch(GetAllChats({ token: localStorage.getItem("token") }));
+    })
+    .then(() => {
+      // After GetAllChats is fulfilled, trigger onClose
+      onClose();
+    })
+    .catch(error => {
+      // Handle error case
+      setSnackbarMessage("Failed to create group chat. Please try again.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    });
   };
+  
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
   return (
     <Container disableGutters>
       <AppBar position="static" disableGutters sx={{ boxShadow: "none" }}>
@@ -399,6 +441,17 @@ const CreateGroup = ({onClose}) => {
           </>
         )}
       </Box>
+      <Snackbar
+      open={openSnackbar}
+      autoHideDuration={11000}
+      onClose={() => setOpenSnackbar(false)}
+      >
+      <Alert 
+      severity={snackbarSeverity}
+      onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
     </Container>
   );
 };

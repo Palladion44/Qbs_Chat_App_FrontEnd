@@ -16,7 +16,7 @@ import background from "../assets/background.jpg";
 import centeredImage from "../assets/image_login.png";
 import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { userDetails } from "../features/auth/authSlice"; // Import register
+import { userDetails,fetchDepartments,fetchRoles } from "../features/auth/authSlice"; // Import register
 import Avatar from "../assets/PlaceHolderForProfileImage.png"
 // import { userDetails } from '../features/auth/actions';
 import "@fontsource/poppins/700.css"; // Import the Poppins font
@@ -35,9 +35,13 @@ const RoleSelect = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState({ id: '', trackingId: '' });
 
   const dispatch = useDispatch();
   const { status, registrationMessage, error } = useSelector((state) => state.auth);
+  const { departments, loading,} = useSelector((state) => state.auth);
+  const { roles } = useSelector((state) => state.auth); // Get roles from state
+
   const phone_number = useSelector((state) => state.auth.phone_number); 
   const first_name = useSelector((state) => state.auth.first_name); 
   const last_name = useSelector((state) => state.auth.last_name); 
@@ -48,7 +52,7 @@ const RoleSelect = () => {
     first_name,
     last_name,
     password,
-    department,
+    department: selectedDepartment.trackingId, // Use trackingId for department
     role,
     image,
   };
@@ -59,7 +63,7 @@ const RoleSelect = () => {
   formData.append("first_name", first_name);
   formData.append("last_name", last_name);
   formData.append("password", password);
-  formData.append("department", department);
+  formData.append("department", selectedDepartment.trackingId);
   formData.append("role", role);
   formData.append("image", image);
   
@@ -84,11 +88,10 @@ const RoleSelect = () => {
       setIsLoadingRegister(false); // Reset loading when done
     }
   };
+  useEffect(() => {
+    dispatch(fetchDepartments());
+  }, [dispatch]);
 
-  const handleDepartmentChange = (event) => {
-    setDepartment(event.target.value);
-  };
-  
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
@@ -118,7 +121,17 @@ const RoleSelect = () => {
 
   // useEffect to handle global errors
 
-
+  // Handle department selection and trigger roles fetching
+  const handleDepartmentChange = (event) => {
+    const selectedDept = departments.find(dept => dept.trackingId === event.target.value);
+    if (selectedDept) {
+      setSelectedDepartment({
+        id: selectedDept._id, // Use _id to fetch roles
+        trackingId: selectedDept.trackingId // Use trackingId for form submission
+      });
+      dispatch(fetchRoles(selectedDept._id)); // Fetch roles using _id
+    }
+  };
 
   return (
     <Container
@@ -231,7 +244,7 @@ const RoleSelect = () => {
               </InputLabel>
               <Select
                 labelId="department-label"
-                value={department}
+                value={selectedDepartment.trackingId}
                 onChange={handleDepartmentChange}
                 label="Department"
                 sx={{
@@ -249,13 +262,12 @@ const RoleSelect = () => {
                   },
                 }}
               >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="sap">SAP</MenuItem>
-                <MenuItem value="webnapp">WEB N APP</MenuItem>
-                <MenuItem value="erp">ERP</MenuItem>
-                <MenuItem value="qa">QA</MenuItem>
+           
+                {departments.map((dept) => (
+        <MenuItem key={dept.trackingId} value={dept.trackingId}>
+          {dept.name}
+        </MenuItem>
+      ))}
               </Select>
             </FormControl>
           </Box>
@@ -289,13 +301,13 @@ const RoleSelect = () => {
                   },
                 }}
               >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value="manager">Manager</MenuItem>
-                <MenuItem value="developer">Developer</MenuItem>
-                <MenuItem value="designer">Designer</MenuItem>
-                <MenuItem value="analyst">Analyst</MenuItem>
+
+{roles.map((role)=>(
+  <MenuItem key={role.trackingId} value={role.trackingId}>
+    {role.name}
+  </MenuItem>
+ 
+))}
               </Select>
             </FormControl>
           </Box>

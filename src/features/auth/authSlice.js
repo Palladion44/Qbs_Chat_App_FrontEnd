@@ -11,7 +11,7 @@ const initialState = {
   last_name: null,
   password: null,
   role: null,
-  department: null,
+  department: [],
   image: null,
   step: "register",
   token: null,
@@ -23,10 +23,13 @@ const initialState = {
   content: null,
   user_id: null,
   sender_ids: [],
+  departments:[],
   name: null,
+  roles:[],
   isAuthenticated: false,
   selectedContact: null,
-  setSelectedContact:null
+  setSelectedContact:null,
+  logId:null
 };
 const baseUrl = process.env.BASE_URL
 export const ReceiveMessages = createAsyncThunk(
@@ -56,7 +59,41 @@ export const ReceiveMessages = createAsyncThunk(
     }
   }
 );
+export const fetchDepartments = createAsyncThunk(
+  'auth/departments',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch('http://localhost:4000/api/departments');
+      const data = await response.json();
 
+      // Check if the response is okay
+      if (!response.ok) {
+        throw new Error('Failed to fetch departments');
+      }
+
+      return data; // Return the departments data
+    } catch (error) {
+      return rejectWithValue(error.message); // Handle any errors
+    }
+  }
+);
+export const fetchRoles = createAsyncThunk(
+  'auth/fetchRoles',
+  async (departmentUuid, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/roles/${departmentUuid}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch roles');
+      }
+
+      return data; // Return the roles
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 export const SendMessage = createAsyncThunk(
   "auth/SendMessage",
   async ({ token, conversation_id, message }, { rejectWithValue }) => {
@@ -192,13 +229,17 @@ export const GetUsers = createAsyncThunk(
 
 export const passwordcheck = createAsyncThunk(
   "auth/passwordcheck",
-  async ({ phone_number, password }, { rejectWithValue }) => {
+  async ({ phone_number, password }, { rejectWithValue,dispatch }) => {
     try {
       const response = await axios.post(
         "http://localhost:4000/api/auth/login",
         { phone_number, password }
       );
-      
+      console.log(response.data); // Log the response data
+      if (response.data.logId) {
+        dispatch(saveLogId(response.data.logId));
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -218,6 +259,36 @@ export const login = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (logId, { dispatch, rejectWithValue, getState }) => {
+    try {
+      // Get the token from the Redux state (or local storage, wherever it's stored)
+      const token = getState().auth.token;
+
+      const response = await axios.post(
+        "http://localhost:4000/api/auth/logout",
+        { logId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
+      );
+
+      // Return the response data first
+      const responseData = response.data;
+
+      // Dispatch the logout after the response is returned
+      dispatch(logout());
+
+      return responseData; // Return the response data after dispatching logout
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Logout failed"); // Handle errors
     }
   }
 );
@@ -266,6 +337,11 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    
+    
+    saveLogId:(state,action)=>{
+      state.logId = action.payload;
+    },
     addToChatList: (state, action) => {
       if (!state.chatList.some((user) => user.name === action.payload.name)) {
         state.chatList.push(action.payload);
@@ -328,17 +404,18 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // .addCase(login.pending, (state) => {
-
-      // })
-      // .addCase(login.fulfilled, (state, action) => {
-      //   state.status = "succeeded";
-      //   state.user = action.payload;
-      // })
-      // .addCase(login.rejected, (state, action) => {
-      //   state.status = "failed";
-      //   state.error = action.error.message;
-      // })
+    .addCase(fetchRoles.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchRoles.fulfilled, (state, action) => {
+      state.loading = false;
+      state.roles = action.payload;
+    })
+    .addCase(fetchRoles.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    })
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -355,6 +432,18 @@ const authSlice = createSlice({
         state.loading = false;
         state.status = "failed";
         state.error = action.payload; // assuming error message is passed here
+      })
+      .addCase(fetchDepartments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDepartments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.departments = action.payload;
+      })
+      .addCase(fetchDepartments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
       // .addCase(login.pending, (state) => {
       //   state.loading = true;
@@ -496,7 +585,8 @@ export const {
   setConversationId,
   SetUserId,
   setSelectedContact,
-  updateLastMessage
+  updateLastMessage,
+  saveLogId
 } = authSlice.actions;
 
 export default authSlice.reducer;

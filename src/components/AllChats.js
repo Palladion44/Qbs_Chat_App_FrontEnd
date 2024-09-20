@@ -48,13 +48,9 @@ import CreateGroup from "./CreateGroup";
     const baseUrl=process.env.REACT_APP_BASE_URL;
     // console.log(baseUrl)
   const dispatch = useDispatch();
-  const socketRef = useRef();
-  
+  const socketRef = useRef();  
   const token = useSelector((state) => state.auth.token);
-  // const allUsers = localStorage.getItem('AllUsers');
   const allUsers = useSelector((state) => state.auth.allUsers) || [];
-  // const allUsers = JSON.parse(useSelector((state) => state.allUsers)) || [];
-  // const allUsers = JSON.parse(localStorage.getItem('AllUsers')) || [];
   const user = useSelector((state) => state.auth.user)
     const users = useSelector((state) => state.auth.users);
     const status = useSelector((state) => state.auth.status);
@@ -68,81 +64,138 @@ import CreateGroup from "./CreateGroup";
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isContactsOpen, setIsContactsOpen] = useState(false);
     const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
-
-
+    const [filteredUsers,setFilteredUsers] = useState();
+    const[allUsersLocal,setAllUsersLocal] = useState(allUsers)
+    const [shouldDispatchChats, setShouldDispatchChats] = useState(true);
+    const [debugMsg ,setDebugMsg] = useState()
     const localtoken = localStorage.getItem("token");
+  const [selectedFilter, setSelectedFilter] = useState("All");
 
-    const filterSelected1 = allUsers?.filter((user) =>
+    const filterSelected1 = allUsersLocal?.filter((user) =>
       user.participants.some((participant) => participant._id === selectedContact?._id)
   );
   const filterSelected = Array.isArray(filterSelected1) ? filterSelected1[0] : filterSelected1;
   const [filterSelectedx,setFilterSelectedx]=useState(filterSelected);
 
   const roomsJoined = useRef(false); // Ref to track if rooms have been joined
-
   useEffect(() => {
-    if (token) {
-      dispatch(GetAllChats({ token }));
-    }
+  setAllUsersLocal(allUsers)
+  }, [allUsers])
+useEffect(() => {
+  if (token) {
+    dispatch(GetAllChats({ token }));
+  }
 
-    socketRef.current = io(`${baseUrl}`, {
-      auth: { token },
+  // Establish socket connection with auth token
+  socketRef.current = io(baseUrl, {
+    auth: { token },
+  });
+
+  // Clean up when component unmounts
+  return () => {
+    socketRef.current.disconnect();
+  };
+}, [token]);
+
+const refreshedConversations = useRef(new Set()); // Use ref to persist data across renders
+useEffect(() => {
+  if (!roomsJoined.current) {
+    // Join rooms for users in allUsersLocal
+    allUsersLocal.forEach(user => {
+      socketRef.current.emit("joinRoom", user._id);
     });
 
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, [token]);
+    roomsJoined.current = true; // Set the flag to true after joining rooms
+  }
 
-  useEffect(() => {
-    if (allUsers.length > 0 && !roomsJoined.current) {
-      const userIds = allUsers.map((user) => user._id);
-
-      userIds.forEach((userId) => {
-        socketRef.current.emit("joinRoom", userId);
-
-        const handleReceiveMessage = (newMessage) => {
-          if (newMessage.conversationId === userId) {
-            setMessages((prevMessages) => ({
-              ...prevMessages,
-              [userId]: newMessage.message,
-            }));
-          }
-        };
-
-        socketRef.current.on("receiveMessage", handleReceiveMessage);
-
-        setMessages((prevMessages) => ({
-          ...prevMessages,
-          [userId]: prevMessages[userId] || user.lastMessage,
-        }));
-
-        // Clean up socket listeners and rooms when component unmounts
-        return () => {
-          socketRef.current.off("receiveMessage", handleReceiveMessage);
-          socketRef.current.emit("leaveRoom", userId);
-        };
-      });
-
-      roomsJoined.current = true; // Set the flag to true after joining rooms
-    }
-  }, [allUsers, token]); // This 
-
-// useEffect(() => {
-//               dispatch(GetAllChats({token}));
-
-// }, [messages])
-
-// // emit listeners
-// useEffect(() => {
-//   const interval = setInterval(() => {
-//     dispatch(GetAllChats({ token }));
-//   }, 1000); // Dispatches every 1000ms (1 second)
+  const handleReceiveMessage = (newMessage) => {
+    const formattedTimestamp = new Date(newMessage.timestamp).toISOString();
+  if(newMessage){
+    setMessages(newMessage)
+  }
+    setAllUsersLocal((prevAllUsersLocal) => {
+      const userIndex = prevAllUsersLocal.findIndex(user => user._id === newMessage.conversationId);
   
-//   // Cleanup the interval on component unmount
-//   return () => clearInterval(interval);
-// }, [dispatch, token]); // Dependencies include dispatch and token
-// // emit listeners
+      if (userIndex !== -1) {
+        const updatedUsers = [...prevAllUsersLocal];
+  
+        // Check if we need to refresh chats for this conversation only once
+        if (!updatedUsers[userIndex].lastMessage && !refreshedConversations.current.has(newMessage.conversationId)) {
+          dispatch(GetAllChats({ token })); // Dispatch only once for this conversation
+          refreshedConversations.current.add(newMessage.conversationId); // Mark this conversation as refreshed
+          console.log("I DISPATCHED HERE");
+        }
+  
+        // Update the user's lastMessage
+        updatedUsers[userIndex] = {
+          ...updatedUsers[userIndex],
+          lastMessage: {
+            message: newMessage.message,
+            sender: newMessage.sender.name,
+            timestamp: formattedTimestamp,
+          },
+        };
+  
+        // Update filtered users based on new state
+        setFilteredUsers((prevFilteredUsers) => {
+          const updatedFilteredUsers = searchQuery
+            ? updatedUsers.filter(user =>
+                user.participants?.some(participant =>
+                  participant.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                ) &&
+                !(user.isGroupChat === false && user.lastMessage === null)
+              ).filter(user =>
+                selectedFilter === "All" ||
+                (selectedFilter === "Groups" && user.isGroupChat === true)
+              )
+            : updatedUsers.filter(
+                user =>
+                  !(user.isGroupChat === false && user.lastMessage === null) &&
+                  (selectedFilter === "All" ||
+                    (selectedFilter === "Groups" && user.isGroupChat === true))
+              );
+  
+          // Sort the filtered users by timestamp
+          const sortedFilteredUsers = [...updatedFilteredUsers].sort((a, b) => {
+            const lastMessageTimestampA = messages[a._id]?.timestamp || a.lastMessage?.timestamp || 0;
+            const lastMessageTimestampB = messages[b._id]?.timestamp || b.lastMessage?.timestamp || 0;
+  
+            return lastMessageTimestampB - lastMessageTimestampA;
+          });
+  
+          return sortedFilteredUsers;
+        });
+  
+        return updatedUsers;
+      }
+  
+      return prevAllUsersLocal;
+    });
+  
+    console.log(newMessage);
+  };
+
+  // Listen for received messages
+  socketRef.current.on("receiveMessage", handleReceiveMessage);
+
+  // Listen for new conversations
+  socketRef.current.on('newConversation', (welcomeMessage) => {
+    console.log('New conversation received:', welcomeMessage);
+
+    socketRef.current.emit("joinRoom", welcomeMessage);
+    dispatch(GetAllChats({ token }));
+    console.log(allUsersLocal);
+  });
+
+  // Cleanup listeners when component unmounts
+  return () => {
+    socketRef.current.off("receiveMessage", handleReceiveMessage);
+    socketRef.current.off('newConversation');
+    allUsersLocal.forEach(user => {
+      socketRef.current.emit("leaveRoom", user._id);
+    });
+  };
+}, [allUsersLocal, token]);
 
 
     const handleChange = (event) => {
@@ -154,9 +207,6 @@ import CreateGroup from "./CreateGroup";
       setSearchQuery("");
       setShowClearIcon("none");
     };
-    
-    
-    
     const handleChatClick = (user) => {
       dispatch(setSelectedContact(user));
 
@@ -164,9 +214,6 @@ import CreateGroup from "./CreateGroup";
       setFilterSelectedx(null);
       setIsContactsOpen(false);
     };
-    
-
-
     
     const handleUser = () => {
       setIsProfileOpen(true);
@@ -216,7 +263,6 @@ import CreateGroup from "./CreateGroup";
           return date.toLocaleDateString(); // e.g., "8/23/2024" or "August 23, 2024" based on locale
       }
   };
-  const [selectedFilter, setSelectedFilter] = useState("All");
 
   // Handle filter change
   const handleFilterChange = (filter) => {
@@ -224,18 +270,33 @@ import CreateGroup from "./CreateGroup";
   };
 
   // Filter users based on search query and selected filter
-  const filteredUsers = searchQuery
-  ? allUsers?.filter((user) =>
-      user.participants?.some(participant =>
-        participant.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      ) &&
-      !(user.isGroupChat === false && user.lastMessage === null) // Exclude non-group chats with no LastMessages
-    ).filter(user => selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
-  : allUsers?.filter(user => 
-      !(user.isGroupChat === false && user.lastMessage === null) && // Exclude non-group chats with no LastMessages
-      (selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
-    );
-
+  useEffect(() => {
+    // This effect will re-run whenever `messages`, `allUsersLocal`, or other dependencies change
+  
+    const updatedFilteredUsers = searchQuery
+      ? allUsersLocal?.filter((user) =>
+          user.participants?.some(participant =>
+            participant.name?.toLowerCase().includes(searchQuery.toLowerCase())
+          ) &&
+          !(user.isGroupChat === false && user.lastMessage === null)
+        ).filter(user => selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
+      : allUsersLocal?.filter(user => 
+          !(user.isGroupChat === false && user.lastMessage === null) &&
+          (selectedFilter === "All" || (selectedFilter === "Groups" && user.isGroupChat === true))
+        );
+  
+    // Sort the filteredUsers based on the latest message timestamp in descending order
+    const sortedFilteredUsers = [...updatedFilteredUsers].sort((a, b) => {
+      const lastMessageTimestampA = a.lastMessage?.timestamp || 0;
+      const lastMessageTimestampB = b.lastMessage?.timestamp || 0;
+    
+      return new Date(lastMessageTimestampB) - new Date(lastMessageTimestampA); // Sort by most recent timestamp
+    });
+  
+    setFilteredUsers(sortedFilteredUsers);
+  }, [ searchQuery, selectedFilter, messages]);  // Re-run the effect when these change
+      
+    
   const handleClear = () => {
     setSearchQuery(''); // Clear the input field
 
@@ -248,9 +309,14 @@ useEffect(() => {
 setCurrentChat(selectedContact)
 }, [selectedContact]);
 
-
-
-
+useEffect(() => {
+setAllUsersLocal(allUsers)
+}, [allUsers])
+useEffect(() => {
+  console.log("filteredUSERSCHANGEDDD",filteredUsers);
+  console.log("allusers changeD!",allUsersLocal)
+  }, [filteredUsers,allUsersLocal])
+  
   return (
     <Container
       disableGutters
@@ -284,7 +350,7 @@ setCurrentChat(selectedContact)
           <Avatar src={user?.user?.profile_url} alt="my-image" onClick={handleUser} />
   
           <Typography sx={{ marginLeft: "100px" }}>
-            {/* {console.log("The username is" + username)} */}
+           {debugMsg}
           </Typography>
   
           <Box sx={{ marginLeft: "auto" }}>
@@ -386,93 +452,97 @@ setCurrentChat(selectedContact)
   
         {/* Chat List */}
         <Box sx={{ overflowY: "auto" }}>
-          {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-            filteredUsers.map((user, index) => {
-              // Check if a real-time message from the socket exists
-        
-              const lastMessageTimestamp = messages[user._id]?.timestamp || user.lastMessage?.timestamp;
-            
-              return (
-                <Box
-                  key={user._id}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: 2,
-                    borderBottom: "1px solid #eee",
-                    backgroundColor: currentChat && currentChat._id === user._id ? "#e8e8e8" : "white", // Change background color if selected
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "#f9f9f9",
-                    },
-                  }}
-                  onClick={() => handleChatClick(user)}
-                >
-                  <Avatar src={user?.groupImage || user?.participants[0]?.profile_url} />
-                  <Box sx={{ marginLeft: 2, width: "85%" }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        width: "100%", // Default max-width
-                        "@media (max-width: 1200px)": {
-                          maxWidth: "80%", // Reduce the visible text on medium screens
-                        },
-                        "@media (max-width: 800px)": {
-                          maxWidth: "60%", // Further reduce the visible text on smaller screens
-                        },
-                        "@media (max-width: 600px)": {
-                          maxWidth: "40%", // Significantly reduce the visible text on very small screens
-                        },
-                      }}
-                    >
-                      <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
-                        {user.groupName || user.participants[0]?.name}
-                      </span>
-                      <Typography
-                        variant="body2"
-                        component="span"
-                        sx={{
-                          fontSize: "0.8rem", // Smaller font size for the date
-                          whiteSpace: "nowrap", // Prevent date from wrapping
-                          marginLeft: "8px", // Add some space between name and date
-                        }}
-                      >
-                        {lastMessageTimestamp ? formatTimestamp(lastMessageTimestamp) : ""}
-                      </Typography>
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        maxWidth: "100%", // Default max-width
-                        "@media (max-width: 1200px)": {
-                          maxWidth: "80%", // Reduce the visible text on medium screens
-                        },
-                        "@media (max-width: 800px)": {
-                          maxWidth: "60%", // Further reduce the visible text on smaller screens
-                        },
-                        "@media (max-width: 600px)": {
-                          maxWidth: "40%", // Significantly reduce the visible text on very small screens
-                        },
-                      }}
-                      color="textSecondary"
-                    >
-                                      {messages[user._id]|| user.lastMessage?.message|| "No message yet"}
+        {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+  filteredUsers.map((user, index) => {
+    const userId = user._id; // Get the user's ID (conversation ID)
 
-                    </Typography>
-                  </Box>
-                </Box>
-              );
-            })
-          ) : null}
+    // Get specific message for this user from the messages state
+    const lastMessage = user.lastMessage?.message;
+    const lastMessageTimestamp = messages[userId]?.timestamp || user.lastMessage?.timestamp;
+
+    return (
+      <Box
+        key={user._id}
+        className="user-list-item" /* Add animation class */
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          padding: 2,
+          borderBottom: "1px solid #eee",
+          backgroundColor: currentChat && currentChat._id === user._id ? "#e8e8e8" : "white",
+          cursor: "pointer",
+          "&:hover": {
+            backgroundColor: "#f9f9f9",
+          },
+        }}
+        onClick={() => handleChatClick(user)}
+      >
+        <Avatar
+          src={user?.isGroupChat ? (user?.groupImage || null) : user?.participants[0]?.profile_url}
+        />
+        <Box sx={{ marginLeft: 2, width: "85%" }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              width: "100%",
+              "@media (max-width: 1200px)": {
+                maxWidth: "80%",
+              },
+              "@media (max-width: 800px)": {
+                maxWidth: "60%",
+              },
+              "@media (max-width: 600px)": {
+                maxWidth: "40%",
+              },
+            }}
+          >
+            <span style={{ fontFamily: "Poppins", fontWeight: "500" }}>
+              {user.groupName || user.participants[0]?.name}
+            </span>
+            <Typography
+              variant="body2"
+              component="span"
+              sx={{
+                fontSize: "0.8rem",
+                whiteSpace: "nowrap",
+                marginLeft: "8px",
+              }}
+            >
+              {lastMessageTimestamp ? formatTimestamp(lastMessageTimestamp) : ""}
+            </Typography>
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              maxWidth: "100%",
+              "@media (max-width: 1200px)": {
+                maxWidth: "80%",
+              },
+              "@media (max-width: 800px)": {
+                maxWidth: "60%",
+              },
+              "@media (max-width: 600px)": {
+                maxWidth: "40%",
+              },
+            }}
+            color="textSecondary"
+          >
+            {lastMessage}
+          </Typography>
+        </Box>
+      </Box>
+    );
+  })
+) : null}
         </Box>
       </Box>
   
@@ -484,6 +554,8 @@ setCurrentChat(selectedContact)
           profileimage={currentChat.participants[0]?.profile_url}
           GroupName={currentChat.groupName}
           GroupProfileImage={currentChat.groupImage}
+  socketRef={socketRef}
+
         />
       ) : (
         <Box

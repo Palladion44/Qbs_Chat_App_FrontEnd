@@ -22,7 +22,7 @@ import {
 } from "../features/auth/authSlice";
 import MessageWithReadMore from "./MessageWithReadMore";
 const myIp = process.env.MY_IP
-const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfileImage }) => {
+const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfileImage,socketRef, }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([])
 
@@ -32,117 +32,116 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
   const conversation_id = conversationId; // Get conversation ID from localStorage
   const token = localStorage.getItem("token"); // Assuming you have a token for authentication
   const username = localStorage.getItem("username"); // Assuming you have a username for authentication
-  const socketRef = useRef();
   const allUsers = useSelector((state) => state.auth.allUsers) || [];
 
 
-    useEffect(() => {
-      socketRef.current = io(`${baseUrl}`, {
-      // socketRef.current = io(`http://localhost:4000`, {
-        auth: { token },
-      });
-
-      return () => {
-        socketRef.current.disconnect();
-      };
-    }, [token]);
-
-    useEffect(() => {
-      if (conversationId) {
-        dispatch(setConversationId(conversationId));
-    
-        socketRef.current.emit("joinRoom", conversationId);
-    
-        // Listen for incoming messages
-        socketRef.current.on("receiveMessage", (newMessage) => {
-          // console.log("newMessage data: ", newMessage);
-          // console.log(newMessage);
-    
-          // Check if the message belongs to the current conversation
-          if (newMessage.conversationId === conversationId) {
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
-            dispatch(GetAllChats({ token }));
-          }
-        });
-    
-        return () => {
-          socketRef.current.off("receiveMessage");
-          socketRef.current.emit("leaveRoom", conversationId); // Leave the room when the conversationId changes
-        };
-      }
-    }, [conversationId, token, dispatch]);
 
   useEffect(() => {
-    if (conversationId){
+    socketRef.current = io(`${baseUrl}`, {
+    // socketRef.current = io(`http://localhost:4000`, {
+      auth: { token },
+    });
 
-    dispatch(ReceiveMessages())
-      .unwrap()
-      .then((filteredMessages) => {
-        setMessages([]);
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, [token]);
 
-        setMessages(filteredMessages);
-      })
-      .catch((error) => {
-        console.error("Failed to load messages:", error);
+  useEffect(() => {
+    if (conversationId) {
+      dispatch(setConversationId(conversationId));
+  
+      socketRef.current.emit("joinRoom", conversationId);
+  
+      // Listen for incoming messages
+      socketRef.current.on("receiveMessage", (newMessage) => {
+        // console.log("newMessage data: ", newMessage);
+        console.log(newMessage);
+  
+        // Check if the message belongs to the current conversation
+        if (newMessage.conversationId === conversationId) {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+          // dispatch(GetAllChats({ token }));
+        }
       });
-    }
-  }, [conversationId]);
-
-
-  const onKeyDown = (event) => {
-    if(event.key === 'Enter'&& !event.shiftKey){
-      event.preventDefault(); // Prevent the newline from being added
-
-      handleSendMessage();
-    }
-  }
-  const handleSendMessage = () => {
-    if (message.trim() && conversation_id) {
-      const newMessage = {
-        message: message,
-        timestamp: Date.now(),
-        sender: {
-          _id: user_id, // Ensure `user_id` is correctly populated
-          name: username || "Unknown", // Ensure `username` is correctly populated
-        },
+  
+      return () => {
+        socketRef.current.off("receiveMessage");
+        socketRef.current.emit("leaveRoom", conversationId); // Leave the room when the conversationId changes
       };
-  
-      // console.log("New message to send:", newMessage); // Debugging log
-  
-      // Clear the input field
-      setMessage("");
-  
-      // Dispatch the SendMessage thunk
-      dispatch(
-        SendMessage({
-          conversation_id: conversation_id,
-          message: message,
-        })
-      );
-  
-      // Emit the message using the existing Socket.io connection
-      socketRef.current.emit("sendMessage", {
-        conversationId: conversation_id,
-        message: message,
-        sender: {
-          _id: user_id, // Ensure `user_id` is available
-          name: username || "Unknown", // Ensure sender object has correct structure
-        },
-      });
-  
-      // console.log("Message sent via socket:", {
-      //   conversationId: conversation_id,
-      //   message: message,
-      //   sender: {
-      //     _id: user_id,
-      //     name: username || "Unknown",
-      //   },
-      // });
-    } else {
-      console.error("Failed to send message: Missing conversation ID or message");
     }
-  };
-  
+  }, [conversationId, token, dispatch]);
+
+useEffect(() => {
+  if (conversationId){
+
+  dispatch(ReceiveMessages())
+    .unwrap()
+    .then((filteredMessages) => {
+      setMessages([]);
+
+      setMessages(filteredMessages);
+    })
+    .catch((error) => {
+      console.error("Failed to load messages:", error);
+    });
+  }
+}, [conversationId]);
+
+
+const onKeyDown = (event) => {
+  if(event.key === 'Enter'&& !event.shiftKey){
+    event.preventDefault(); // Prevent the newline from being added
+
+    handleSendMessage();
+  }
+}
+const handleSendMessage = () => {
+  if (message.trim() && conversation_id) {
+    const newMessage = {
+      message: message,
+      timestamp: Date.now(),
+      sender: {
+        _id: user_id, // Ensure `user_id` is correctly populated
+        name: username || "Unknown", // Ensure `username` is correctly populated
+      },
+    };
+
+    // console.log("New message to send:", newMessage); // Debugging log
+
+    // Clear the input field
+    setMessage("");
+
+    // Dispatch the SendMessage thunk
+    dispatch(
+      SendMessage({
+        conversation_id: conversation_id,
+        message: message,
+      })
+    );
+
+    // Emit the message using the existing Socket.io connection
+    socketRef.current.emit("sendMessage", {
+      conversationId: conversation_id,
+      message: message,
+      sender: {
+        _id: user_id, // Ensure `user_id` is available
+        name: username || "Unknown", // Ensure sender object has correct structure
+      },
+    });
+
+    // console.log("Message sent via socket:", {
+    //   conversationId: conversation_id,
+    //   message: message,
+    //   sender: {
+    //     _id: user_id,
+    //     name: username || "Unknown",
+    //   },
+    // });
+  } else {
+    console.error("Failed to send message: Missing conversation ID or message");
+  }
+};
   // scroll to bottom automatically
   const messagesEndRef = useRef(null);
   useEffect(() => {
@@ -151,6 +150,13 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
     }
   }, [messages]); 
   // console.log(messages);
+  const getRandomDarkColor = () => {
+    const randomValue = () => Math.floor(Math.random() * 150); // Limits color values to ensure it's dark
+    const r = randomValue();
+    const g = randomValue();
+    const b = randomValue();
+    return `rgb(${r},${g},${b})`;
+  };
 
   return (
     <Container
@@ -219,7 +225,7 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
     {GroupName && msg.sender.name && (
         <Typography
           variant="caption"
-          sx={{ color: "blue", alignSelf: "flex-start", fontSize:"12px",marginBottom: "2px" }}
+          sx={{ color: getRandomDarkColor(), alignSelf: "flex-start", fontSize:"12px",marginBottom: "2px" }}
         >
           {msg.sender.name}
         </Typography>
@@ -272,5 +278,4 @@ const PersonalChat = ({ conversationId, name,profileimage,GroupName,GroupProfile
     </Container>
   );
 };
-
-export default PersonalChat;
+export default PersonalChat
